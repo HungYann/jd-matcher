@@ -91,6 +91,16 @@
         <div class="stat-num">AI+</div>
         <div class="stat-sub">Claude &amp; OpenAI</div>
       </div>
+      <div class="stat-card liquid-glass">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <div class="stat-num" id="stat-today">–</div>
+        <div class="stat-sub">今日用户</div>
+      </div>
+      <div class="stat-card liquid-glass">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <div class="stat-num" id="stat-total">–</div>
+        <div class="stat-sub">累计用户</div>
+      </div>
     </div>
 
   </div>
@@ -404,6 +414,57 @@ const SAMPLE_JDS = {
       ta.scrollTop = 0;
     });
   });
+})();
+</script>
+
+<!-- ── Visitor Counter (Upstash REST) ─────────────────────────── -->
+<script>
+(async () => {
+  const BASE  = 'https://cute-chow-82881.upstash.io';
+  const TOKEN = 'gQAAAAAAAUPBAAIncDE3ZWZjNzA0ZWI4ODk0M2Y5YjYwZDczNTMxZDEzYzA0N3AxODI4ODE';
+
+  // UTC+8 当天日期 key
+  function dayKey() {
+    const d = new Date(Date.now() + 8 * 3600 * 1000);
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `visitors:day:${y}-${m}-${day}`;
+  }
+
+  // 数字格式化 1234 → 1.2k
+  function fmt(n) {
+    if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + 'w';
+    if (n >= 1000)  return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return String(n);
+  }
+
+  try {
+    // Pipeline: 同时 INCR 今日 key 和 total key
+    const res = await fetch(`${BASE}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([
+        ['INCR', dayKey()],
+        ['INCR', 'visitors:total'],
+      ]),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    // data = [{result: todayCount}, {result: totalCount}]
+    const today = data[0]?.result;
+    const total = data[1]?.result;
+    if (today != null) {
+      const el = document.getElementById('stat-today');
+      if (el) el.textContent = fmt(today);
+    }
+    if (total != null) {
+      const el = document.getElementById('stat-total');
+      if (el) el.textContent = fmt(total);
+    }
+  } catch (e) {
+    // 静默失败，不影响主功能
+  }
 })();
 </script>
 </body>
