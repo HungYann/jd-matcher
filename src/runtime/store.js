@@ -46,9 +46,9 @@ export function setJDText(text) {
   setState({ jdText: text, result: null, parsedJD: null, error: null });
 }
 
-/** 更新 API Key 和引擎模式 */
-export function setEngineConfig(apiKey, engineMode) {
-  setState({ apiKey, engineMode });
+/** 更新 API Key、引擎模式和 provider */
+export function setEngineConfig(apiKey, engineMode, provider) {
+  setState({ apiKey, engineMode, aiProvider: provider || 'claude' });
 }
 
 /**
@@ -69,7 +69,7 @@ export async function loadResumeAction(opts = {}) {
  * 执行 JD 解析 + 匹配计算。
  */
 export async function runMatch() {
-  const { jdText, resume, apiKey, engineMode } = state;
+  const { jdText, resume, apiKey, engineMode, aiProvider } = state;
 
   if (!jdText.trim()) {
     setState({ error: '请先粘贴 JD 文本' }); return;
@@ -91,7 +91,7 @@ export async function runMatch() {
     // 3. 计算匹配
     let result;
     if (engineMode === 'ai' && apiKey) {
-      const provider = apiKey.startsWith('sk-ant') ? 'claude' : 'openai';
+      const provider = aiProvider || (apiKey.startsWith('sk-ant') ? 'claude' : 'openai');
       result = await computeMatchWithAI(parsedJD, finalResume, { apiKey, provider });
     } else {
       result = computeMatch(parsedJD, finalResume);

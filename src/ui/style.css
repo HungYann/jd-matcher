@@ -408,6 +408,30 @@ textarea:focus { border-color: rgba(139,124,248,.5); box-shadow: 0 0 0 3px rgba(
   border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.3);
 }
 
+/* Provider Tabs */
+.provider-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.provider-tab {
+  font-family: 'Barlow', sans-serif;
+  font-size: .73rem; font-weight: 500;
+  padding: 5px 14px; border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: var(--muted); cursor: pointer;
+  transition: all .18s ease;
+}
+.provider-tab:hover {
+  border-color: rgba(139,124,248,.4);
+  color: var(--text);
+}
+.provider-tab.active {
+  border-color: rgba(139,124,248,.7);
+  background: rgba(139,124,248,.18);
+  color: var(--accent);
+  box-shadow: 0 0 8px rgba(139,124,248,.2);
+}
+
 /* Resume Badge */
 .resume-badge {
   display: inline-flex; align-items: center; gap: 5px;

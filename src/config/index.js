@@ -13,6 +13,9 @@ const DEFAULT_ENV = {
   JDM_OPENAI_ENDPOINT: 'https://api.openai.com/v1/chat/completions',
   JDM_OPENAI_MODEL: 'gpt-4o-mini',
   JDM_OPENAI_MAX_TOKENS: '1024',
+  JDM_DEEPSEEK_ENDPOINT: 'https://api.deepseek.com/v1/chat/completions',
+  JDM_DEEPSEEK_MODEL: 'deepseek-chat',
+  JDM_DEEPSEEK_MAX_TOKENS: '1024',
 };
 
 let configInitPromise = null;
@@ -167,6 +170,11 @@ function buildAIConfig(env) {
       endpoint: env.JDM_OPENAI_ENDPOINT,
       model: env.JDM_OPENAI_MODEL,
       maxTokens: toPositiveInt(env.JDM_OPENAI_MAX_TOKENS, 1024),
+    },
+    deepseek: {
+      endpoint: env.JDM_DEEPSEEK_ENDPOINT,
+      model: env.JDM_DEEPSEEK_MODEL,
+      maxTokens: toPositiveInt(env.JDM_DEEPSEEK_MAX_TOKENS, 1024),
     },
   };
 }

@@ -217,8 +217,16 @@ Requirements:
               <span>Enable AI-enhanced analysis</span>
             </label>
             <div class="field-group">
+              <div class="field-lbl">Provider</div>
+              <div class="provider-tabs" id="provider-tabs">
+                <button class="provider-tab active" data-provider="claude">Claude</button>
+                <button class="provider-tab" data-provider="openai">OpenAI</button>
+                <button class="provider-tab" data-provider="deepseek">DeepSeek</button>
+              </div>
+            </div>
+            <div class="field-group">
               <div class="field-lbl">API Key</div>
-              <input id="api-key" type="password" placeholder="sk-ant-… or sk-…"/>
+              <input id="api-key" type="password" placeholder="sk-ant-… / sk-… / sk-…"/>
               <div class="field-hint">🔒 Stays local — never sent to our servers</div>
             </div>
           </div>

@@ -27,6 +27,7 @@ const collapseHdr  = $('collapse-header');
 const collapseBody = $('collapse-body');
 const resumeBadge  = $('resume-badge');
 const appName      = $('app-name');
+const providerTabs = $('provider-tabs');
 
 // ── 初始化 ────────────────────────────────────────────────────────────────────
 
@@ -44,6 +45,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   aiToggle.addEventListener('change', syncEngineConfig);
   apiKeyInput.addEventListener('input', syncEngineConfig);
+
+  // Provider tabs
+  providerTabs.addEventListener('click', e => {
+    const btn = e.target.closest('.provider-tab');
+    if (!btn) return;
+    providerTabs.querySelectorAll('.provider-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    syncEngineConfig();
+  });
 
   // 折叠
   collapseHdr.addEventListener('click', () => {
@@ -68,7 +78,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 function syncEngineConfig() {
   const mode = aiToggle.checked ? 'ai' : 'local';
-  setEngineConfig(apiKeyInput.value.trim() || null, mode);
+  const activeTab = providerTabs?.querySelector('.provider-tab.active');
+  const provider = activeTab?.dataset.provider || 'claude';
+  setEngineConfig(apiKeyInput.value.trim() || null, mode, provider);
 }
 
 async function handleFileSelect() {

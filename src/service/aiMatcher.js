@@ -10,7 +10,7 @@ import { computeMatch } from './matcher.js';
 /**
  * @param {import('../types/index.js').ParsedJD} jd
  * @param {import('../types/index.js').Resume}   resume
- * @param {{ apiKey: string, provider: 'claude'|'openai' }} opts
+ * @param {{ apiKey: string, provider: 'claude'|'openai'|'deepseek' }} opts
  * @returns {Promise<import('../types/index.js').MatchResult>}
  */
 export async function computeMatchWithAI(jd, resume, { apiKey, provider = 'claude' }) {
@@ -21,7 +21,9 @@ export async function computeMatchWithAI(jd, resume, { apiKey, provider = 'claud
     const prompt = buildPrompt(jd, resume, localResult);
     const raw = provider === 'claude'
       ? await callClaude(prompt, apiKey)
-      : await callOpenAI(prompt, apiKey);
+      : provider === 'deepseek'
+        ? await callDeepSeek(prompt, apiKey)
+        : await callOpenAI(prompt, apiKey);
 
     const aiParsed = parseAIResponse(raw);
 
@@ -131,6 +133,32 @@ async function callOpenAI(prompt, apiKey) {
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
     throw new Error(`OpenAI API ${resp.status}: ${err.error?.message || resp.statusText}`);
+  }
+
+  const data = await resp.json();
+  return data.choices?.[0]?.message?.content || '';
+}
+
+// ─── DeepSeek API ──────────────────────────────────────────────────────────────
+
+async function callDeepSeek(prompt, apiKey) {
+  const cfg = AI_CONFIG.deepseek;
+  const resp = await fetch(cfg.endpoint, {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model:      cfg.model,
+      max_tokens: cfg.maxTokens,
+      messages:   [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(`DeepSeek API ${resp.status}: ${err.error?.message || resp.statusText}`);
   }
 
   const data = await resp.json();
