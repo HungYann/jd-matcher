@@ -1,0 +1,205 @@
+---
+title: 架构设计
+description: JD Matcher 的依赖层级、数据流设计与三 Agent 开发协议。
+---
+
+# 架构设计
+
+---
+
+## 依赖层级（单向）
+
+项目采用严格的单向依赖，低层模块对上层无感知：
+
+```
+types
+  └── config
+        └── repo
+        └── service/parser
+        └── service/matcher
+              └── service/aiMatcher
+                    └── runtime/store
+                          └── ui/app.js
+```
+
+> **铁律**：任何模块只能 `import` 比自己层级低的模块。违反则 Planner 拒绝该 Sprint Contract。
+
+### 层级职责
+
+| 层 | 模块 | 职责 | 副作用 |
+|----|------|------|--------|
+| `types` | `types/index.js` | 纯数据结构定义（JSDoc typedef） | ❌ 无 |
+| `config` | `config/index.js` | 常量、权重、词库、.env 加载 | 仅 1 次 fetch `.env` |
+| `repo` | `repo/resumeRepo.js` | 简历读取：本地文件 / 远程 URL | FileReader / fetch |
+| `service` | `service/parser.js` | JD 文本 → `ParsedJD` 结构 | ❌ 无 |
+| `service` | `service/matcher.js` | 本地多维评分算法 | ❌ 无 |
+| `service` | `service/aiMatcher.js` | AI 增强评分，含 fallback | fetch（Claude/OpenAI API） |
+| `runtime` | `runtime/store.js` | 响应式状态管理（subscribe/notify） | 调用上述所有层 |
+| `ui` | `ui/app.js` | DOM 渲染、事件绑定 | DOM 操作 |
+
+---
+
+## 数据流
+
+用户的一次完整匹配流程：
+
+```
+用户操作
+  │
+  ├─ 粘贴 JD 文本 ──────────────────► store.setJDText(text)
+  │
+  ├─ 上传简历文件 ──────────────────► store.loadResumeAction({ file })
+  │                                       └─► repo.loadFromFile(file)
+  │                                               └─► 解析 JSON / TXT / PDF
+  │
+  └─ 点击「开始匹配」 ─────────────► store.runMatch()
+        │
+        ├─ Step 1: parseJD(jdText)
+        │     └─► service/parser.js
+        │           → 提取 title / skills / minYears / eduLevel
+        │
+        ├─ Step 2: 选择引擎
+        │     ├─ engineMode === 'local'
+        │     │     └─► computeMatch(parsedJD, resume)
+        │     │               → 三维加权评分
+        │     │
+        │     └─ engineMode === 'ai' && apiKey
+        │           └─► computeMatchWithAI(parsedJD, resume, opts)
+        │                   ├─ computeMatch(...)  ← 本地基础分
+        │                   ├─ callClaude/callOpenAI(prompt, apiKey)
+        │                   └─ 融合：AI 60% + 本地 40%
+        │
+        └─ Step 3: setState({ result, status: 'done' })
+              └─► notify() → UI 订阅函数触发重渲染
+```
+
+---
+
+## 评分算法
+
+### 三维加权公式
+
+```
+totalScore = skill × 0.50 + experience × 0.30 + education × 0.20
+```
+
+### 技能维度（0~100）
+
+```
+requiredScore = (匹配必要技能数 / 总必要技能数) × 100
+niceBonus     = (匹配加分技能数 / 总加分技能数) × 15   // 上限 15 分
+skillScore    = min(100, requiredScore × 0.85 + niceBonus)
+```
+
+### 经验维度（0~100）
+
+| 实际年限 vs 要求年限 | 得分 |
+|---------------------|------|
+| 超出 ≥ 2 年 | 100 |
+| 满足（0~2 年内） | 90 |
+| 不足 1 年 | 65 |
+| 不足 2 年 | 40 |
+| 不足 3 年+ | 20 |
+| JD 未提及 | 70 或 90（按实际年限） |
+
+### 学历维度（0~100）
+
+学历映射：`phd=4, master=3, bachelor=2, any=1`
+
+| 实际学历 vs 要求学历 | 得分 |
+|---------------------|------|
+| 超出 1 级以上 | 100 |
+| 恰好满足 | 90 |
+| 低 1 级 | 60 |
+| 低 2 级以上 | 30 |
+
+### AI 增强混合评分
+
+```
+blendedScore = aiScore × 0.6 + localScore × 0.4
+```
+
+AI 调用失败时，自动 fallback 到纯本地结果，不影响用户体验。
+
+---
+
+## 三 Agent 开发协议（Harness）
+
+```
+Planner ──sprint contract──► Generator ──► Evaluator
+   ▲                                           │
+   └─────────── feedback / next sprint ◄───────┘
+```
+
+### Planner 职责
+
+- 拆解用户需求 → 制定 Sprint Contract
+- 验证 Contract 不违反依赖层规则
+- 生成可测试的验收标准（criteria）
+
+### Generator 职责
+
+- 严格按 Sprint Contract 实现功能
+- 每个实现文件头注明所属 Sprint 和依赖层
+- 不主动越权修改其他 Sprint 的代码
+
+### Evaluator 职责
+
+- 底层（types/config/service）：运行 `tests/unit/` 断言验收
+- UI 层：手动验收或 Playwright 端到端测试
+- 验收未通过 → 反馈给 Generator，禁止推进下一 Sprint
+
+### Sprint Contract 格式
+
+```yaml
+## Sprint #{n}
+goal:        # 本轮要实现的单一功能（一句话）
+impl:        # Generator 的具体实现方案
+criteria:    # 可测试的成功标准（至少 2 条）
+layer:       # 涉及的依赖层（如 service/matcher）
+blocked_by:  # 依赖的前序 sprint（无则 none）
+```
+
+---
+
+## 状态机
+
+应用状态由 `runtime/store.js` 管理，遵循如下状态转换：
+
+```
+idle
+ │
+ ├─ loadResumeAction() ──────────────► loading
+ │                                         │
+ │                              成功 ──────┤
+ │                                         ▼
+ │                                        idle（resume 已加载）
+ │                              失败 ──► error
+ │
+ └─ runMatch() ──────────────────────► matching
+                                           │
+                                 成功 ─────┤
+                                           ▼
+                                          done
+                                 失败 ──► error
+```
+
+UI 通过 `store.subscribe(fn)` 监听状态变化，无需轮询。
+
+---
+
+## 配置加载时序
+
+```
+浏览器加载 index.html
+  └─► <script type="module"> 启动
+        └─► import config/index.js
+              └─► initConfig() ← 异步
+                    └─► fetch('/.env') → 解析 → 合并 DEFAULT_ENV
+                          │
+                          失败（文件不存在）→ 使用 DEFAULT_ENV（静默降级）
+                          │
+                          成功 → 更新 SITE_CONFIG / AI_CONFIG
+```
+
+`initConfig()` 使用单例 Promise，多次调用只发送一次网络请求。

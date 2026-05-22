@@ -1,0 +1,18 @@
+{
+  "title": "JD Matcher 文档",
+  "pages": [
+    "index",
+    "harness-audit",
+    "architecture",
+    "sprints",
+    {
+      "type": "folder",
+      "name": "模块文档",
+      "root": "modules",
+      "pages": ["..."]
+    },
+    "skills",
+    "configuration",
+    "dev-guide"
+  ]
+}

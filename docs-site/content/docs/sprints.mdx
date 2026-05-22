@@ -1,0 +1,195 @@
+---
+title: Sprint 历史
+description: jd-matcher 全部 8 个 Sprint 的目标、实现方案与验收记录。
+---
+
+# Sprint 历史
+
+项目共划分 8 个 Sprint，严格遵循依赖层顺序逐层实现。
+每个 Sprint 对应代码文件头的注释（`Sprint N — 层名`）。
+
+---
+
+## Sprint 总览
+
+| Sprint | Goal | Layer | 状态 |
+|--------|------|-------|------|
+| [S1](#s1) | 数据结构定义 | `types` | ✅ 完成 |
+| [S2](#s2) | 配置与权重 | `config` | ✅ 完成 |
+| [S3](#s3) | 简历数据仓库 | `repo` | ✅ 完成 |
+| [S4](#s4) | JD 解析器 | `service/parser` | ✅ 完成 |
+| [S5](#s5) | 本地匹配算法 | `service/matcher` | ✅ 完成 |
+| [S6](#s6) | AI 增强匹配 | `service/ai` | ✅ 完成 |
+| [S7](#s7) | 状态管理 | `runtime` | ✅ 完成 |
+| [S8](#s8) | UI 主界面 | `ui` | ✅ 完成 |
+
+---
+
+## S1 — 数据结构定义 {#s1}
+
+```yaml
+goal:       定义项目所有核心数据类型
+impl:       纯 JSDoc @typedef，无运行时代码，不引用任何外部模块
+criteria:
+  - ParsedJD 含 title/company/requiredSkills/niceSkills/minYears/eduLevel/keywords
+  - Resume 含 name/skills/experience/education
+  - MatchResult 含 totalScore/dimensions/skillMatches/missingSkills/engine
+  - AppState 含 status/jdText/parsedJD/resume/result/apiKey/engineMode
+layer:      types
+blocked_by: none
+```
+
+**关键类型**：
+
+- `ParsedJD` — JD 解析结果，供 matcher 和 aiMatcher 消费
+- `Resume` — 简历结构，支持 JSON 格式直接反序列化
+- `MatchResult` — 匹配结果，含维度分、技能明细、优势、建议
+- `AppState` — 全局状态，由 store 管理
+
+---
+
+## S2 — 配置与权重 {#s2}
+
+```yaml
+goal:       定义匹配权重、词库、学历映射和 .env 加载逻辑
+impl:       config/index.js，异步 initConfig() 读取 /.env
+criteria:
+  - WEIGHTS.skill + WEIGHTS.experience + WEIGHTS.education === 1.0
+  - SKILL_DICTIONARY 覆盖 languages / ai / backend / database / devops / data / web3
+  - .env 文件缺失时静默降级到 DEFAULT_ENV
+  - initConfig() 多次调用只发一次网络请求（单例 Promise）
+layer:      config
+blocked_by: S1
+```
+
+**权重设计理由**：
+
+| 维度 | 权重 | 理由 |
+|------|------|------|
+| 技能 | 50% | 技能是最直接的招聘筛选条件 |
+| 经验 | 30% | 年限影响薪资段和团队期望 |
+| 学历 | 20% | 国际公司对学历要求宽松，权重低 |
+
+---
+
+## S3 — 简历数据仓库 {#s3}
+
+```yaml
+goal:       实现简历的本地文件读取和可选远程 URL 加载
+impl:       repo/resumeRepo.js，支持 JSON / TXT / PDF 三种格式
+criteria:
+  - .json 文件直接反序列化为 Resume 对象
+  - .txt / .pdf 触发 parseTextResume（关键词扫描粗解析）
+  - PDF 使用 pdfjs-dist CDN 动态 import，不打包
+  - RESUME_URL 为空时不发起网络请求
+layer:      repo
+blocked_by: S2
+```
+
+**文件格式支持**：
+
+| 格式 | 解析方式 | 精度 |
+|------|---------|------|
+| `.json` | `JSON.parse()` 直接反序列化 | ⭐⭐⭐ 完整 |
+| `.txt` | 关键词扫描（30 个常见技能） | ⭐⭐ 基础 |
+| `.pdf` | pdfjs-dist 提取文字 → 关键词扫描 | ⭐⭐ 基础 |
+
+> **建议**：使用 JSON 格式简历获得最准确的匹配结果。
+
+---
+
+## S4 — JD 解析器 {#s4}
+
+```yaml
+goal:       从 JD 原始文本提取结构化字段
+impl:       service/parser.js，正则 + 词库扫描，纯函数无副作用
+criteria:
+  - 能提取 title（职位名，取第一行或正则匹配）
+  - 能提取 company（公司名，支持中英文模式）
+  - 能区分 requiredSkills vs niceSkills（通过段落定位）
+  - 能提取 minYears（支持中英文年限表达）
+  - 能提取 eduLevel（bachelor / master / phd / any）
+layer:      service/parser
+blocked_by: S2
+```
+
+**段落定位策略**：
+
+```
+"requirements" / "岗位要求" / "必须" 段落 → requiredSkills
+"nice to have" / "加分项" / "优先" 段落   → niceSkills
+未找到明确段落 → 全文扫描（作为 required）
+```
+
+---
+
+## S5 — 本地匹配算法 {#s5}
+
+```yaml
+goal:       实现三维加权匹配评分，产出完整 MatchResult
+impl:       service/matcher.js，纯函数，不调用网络
+criteria:
+  - totalScore ∈ [0, 100]
+  - dimensions 包含 技能/经验/学历 三项
+  - skillMatches 包含每个技能的 matched + source
+  - missingSkills 正确列出未匹配技能
+  - strengths 和 suggestions 非空
+layer:      service/matcher
+blocked_by: S2, S4
+```
+
+---
+
+## S6 — AI 增强匹配 {#s6}
+
+```yaml
+goal:       调用 Claude / OpenAI 补充主观分析，失败自动 fallback
+impl:       service/aiMatcher.js，先跑本地算法，再请求 AI，混合评分
+criteria:
+  - provider 根据 apiKey 前缀自动识别（sk-ant → Claude）
+  - AI 超时或报错时返回本地结果（不白屏）
+  - aiAnalysis 字段包含 AI 自然语言评价
+  - blendedScore = AI×0.6 + local×0.4
+layer:      service/ai
+blocked_by: S5
+```
+
+**Provider 自动识别**：
+
+```js
+const provider = apiKey.startsWith('sk-ant') ? 'claude' : 'openai';
+```
+
+---
+
+## S7 — 状态管理 {#s7}
+
+```yaml
+goal:       实现轻量响应式 store，UI 通过 subscribe 监听变化
+impl:       runtime/store.js，手动 subscribe/notify 模式
+criteria:
+  - subscribe(fn) 返回取消订阅函数
+  - setState() 触发所有 listener
+  - loadResumeAction 处理 loading / idle / error 三态
+  - runMatch 处理 matching / done / error 三态
+  - reset() 还原到 EMPTY_STATE
+layer:      runtime
+blocked_by: S3, S4, S5, S6
+```
+
+---
+
+## S8 — UI 主界面 {#s8}
+
+```yaml
+goal:       实现完整的单页应用界面
+impl:       ui/app.js + ui/index.html + ui/style.css
+criteria:
+  - JD 输入区：textarea，支持粘贴
+  - 简历上传：拖拽 / 点击，支持 .json/.txt/.pdf
+  - AI 配置：API Key 输入，引擎切换（本地/AI）
+  - 结果展示：总分、雷达图、三维详情、技能明细、优势、建议
+  - UI 只通过 store.* 操作数据，不直接调用 service/repo
+layer:      ui
+blocked_by: S7
+```

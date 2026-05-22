@@ -1,0 +1,146 @@
+---
+title: Skills
+description: jd-matcher 项目内置的两个 AI Skills：job-search 和 target-job-matcher。
+---
+
+# Skills
+
+项目内置两个面向求职场景的 Skills，存放在 `skills/` 目录。
+
+---
+
+## 目录结构
+
+```
+skills/
+├── job-search/
+│   └── SKILL.md          ← 职位发现与筛选
+└── target-job-matcher/
+    └── SKILL.md          ← 多岗位排序与投递决策
+```
+
+---
+
+## job-search
+
+**定位**：在用户还没有确定目标 JD 时使用，帮助从多个职位中筛选出值得分析的候选。
+
+**触发场景**：
+- 用户想搜索某类职位
+- 用户有多个 JD 链接，不知道该分析哪些
+- 用户需要从 JD 文本中提取结构化字段
+
+**典型工作流**：
+
+```
+1. 确认目标角色、市场、地区和必要条件
+2. 收集候选职位（招聘网站 / 公司官网 / 猎头消息）
+3. 过滤重复或信号弱的职位
+4. 将每个 JD 标准化为结构化格式
+5. 对比岗位，按预期匹配度排序
+6. 保留最优候选，导出 JD 文本供后续匹配
+```
+
+**输出格式**：
+
+```markdown
+# Application Target Shortlist
+
+## Role 1
+- Title: Senior Backend Engineer
+- Company: Example Inc.
+- Required Skills: Go, Distributed systems, PostgreSQL
+- Preferred Skills: LLM, RAG, Kubernetes
+- Clean JD: <标准化后的 JD 文本>
+
+## Recommendation
+- Best target: Role 1
+- Why: 核心后端技能高度匹配，经验差距最小
+```
+
+---
+
+## target-job-matcher
+
+**定位**：用户已有简历 + 多个目标 JD 时使用，输出投递优先级排序。
+
+**解决的问题**：给定一份简历和多个候选 JD，判断：
+- 哪些岗位最匹配，应该优先投
+- 哪些岗位有可管理的差距，值得尝试
+- 哪些岗位暂时不适合，建议延后
+
+**典型工作流**：
+
+```
+1. 收集简历 + 多个目标 JD
+2. 将每个 JD 标准化（title/required/preferred/exp/edu）
+3. 逐一与简历证据对比
+4. 按综合匹配度排序
+5. 说明每个岗位的最强匹配点和最大差距
+6. 给出应投顺序推荐
+```
+
+**输出格式**：
+
+```markdown
+# Target Job Ranking
+
+## Rank 1
+- Title: Senior Backend Engineer
+- Company: Example Inc.
+- Fit: High
+- Apply Now: Yes
+- Why: Core backend stack, infra experience, and seniority all align well
+
+## Rank 2
+- Title: AI Engineer
+- Fit: Medium
+- Apply Now: Yes
+- Why: Strong LLM overlap, but production evaluation depth is less explicit
+
+## Rank 3
+- Title: Staff Data Engineer
+- Fit: Low
+- Apply Now: No
+- Why: Significant gap in staff-level leadership
+```
+
+---
+
+## Skills 与 JD Matcher 的协作关系
+
+```
+用户有多个候选 JD
+  │
+  ├─ 使用 job-search Skill ──► 筛选 + 标准化 JD
+  │
+  ├─ 使用 target-job-matcher ──► 排出投递优先级
+  │
+  └─ 将最优 JD 粘贴到 JD Matcher ──► 获取详细匹配分析
+```
+
+---
+
+## 改进建议（Harness 合规性）
+
+当前 Skills 存在以下优化空间（详见 [Harness 审计](/docs/harness-audit)）：
+
+1. **路径问题**：Skills 目前在 `skills/` 目录，未放到 `.claude/commands/`，
+   Claude Code 不会自动扫描
+2. **触发词不足**：description 缺少中文关键词，中文对话无法自动触发
+3. **状态**：两个 Skills 当前为「文档模式」（documentation-only），
+   尚未实现自动化工作流
+
+**建议补充的中文触发词**：
+
+```yaml
+# job-search
+description: >
+  职位搜索与筛选。触发词：找工作、搜职位、职位筛选、JD 对比、
+  job search、find jobs、compare JD
+
+# target-job-matcher  
+description: >
+  多岗位匹配排序。触发词：哪个岗位最适合、投递优先级、岗位对比分析、
+  target job matcher、rank jobs、应该先投哪个
+```

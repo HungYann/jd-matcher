@@ -1,0 +1,14 @@
+{
+  "title": "模块文档",
+  "pages": [
+    "index",
+    "types",
+    "config",
+    "repo",
+    "parser",
+    "matcher",
+    "ai-matcher",
+    "store",
+    "ui"
+  ]
+}

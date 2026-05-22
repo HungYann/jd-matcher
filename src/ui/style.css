@@ -1,0 +1,260 @@
+/* ── 变量 & 基础重置 ─────────────────────────────────────────── */
+:root {
+  --bg:        #0f1117;
+  --surface:   #1a1d27;
+  --surface2:  #22263a;
+  --border:    #2e3248;
+  --accent:    #6c63ff;
+  --accent2:   #00d4aa;
+  --text:      #e2e8f0;
+  --text-muted:#8892a4;
+  --danger:    #ff5c6c;
+  --warn:      #f59e0b;
+  --success:   #34d399;
+  --radius:    12px;
+  --shadow:    0 4px 24px rgba(0,0,0,.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── 布局 ───────────────────────────────────────────────────── */
+.app-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px; border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky; top: 0; z-index: 100;
+}
+.app-header .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; }
+.app-header .logo span { font-size: 1.5rem; }
+.engine-badge {
+  font-size: .75rem; padding: 3px 10px;
+  border-radius: 20px; border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.engine-badge.ai { border-color: var(--accent); color: var(--accent); }
+
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 0 24px;
+}
+@media (max-width: 900px) {
+  .main-layout { grid-template-columns: 1fr; }
+}
+
+/* ── 卡片 ───────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: .78rem; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.card-title.accent { color: var(--accent); }
+
+/* ── 表单元素 ───────────────────────────────────────────────── */
+textarea, input[type=text], input[type=password] {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); padding: 10px 14px;
+  font-family: inherit; font-size: .9rem;
+  resize: vertical; outline: none;
+  transition: border-color .2s;
+}
+textarea:focus, input:focus { border-color: var(--accent); }
+textarea { min-height: 180px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 22px; border-radius: 8px;
+  font-size: .9rem; font-weight: 600; cursor: pointer;
+  border: none; transition: all .2s; white-space: nowrap;
+}
+.btn-primary {
+  background: var(--accent); color: #fff;
+}
+.btn-primary:hover { background: #5a52e0; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn-secondary {
+  background: var(--surface2); color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+label { font-size: .85rem; color: var(--text-muted); margin-bottom: 6px; display: block; }
+
+/* ── 文件上传区 ─────────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--border); border-radius: 8px;
+  padding: 20px; text-align: center; cursor: pointer;
+  color: var(--text-muted); font-size: .85rem;
+  transition: all .2s; margin-top: 8px;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--accent); color: var(--accent);
+  background: rgba(108,99,255,.06);
+}
+.upload-zone input { display: none; }
+
+.resume-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(52,211,153,.12); color: var(--success);
+  border: 1px solid rgba(52,211,153,.3);
+  border-radius: 6px; padding: 4px 10px; font-size: .8rem;
+  margin-top: 8px;
+}
+
+/* ── API Key 折叠区 ─────────────────────────────────────────── */
+.collapse-header {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; padding: 8px 0; user-select: none;
+  font-size: .85rem; color: var(--text-muted);
+}
+.collapse-header:hover { color: var(--text); }
+.collapse-arrow { transition: transform .2s; font-style: normal; }
+.collapse-header.open .collapse-arrow { transform: rotate(180deg); }
+.collapse-body { overflow: hidden; max-height: 0; transition: max-height .3s ease; }
+.collapse-body.open { max-height: 200px; }
+
+/* ── 结果区总分圆环 ─────────────────────────────────────────── */
+.result-panel { grid-column: 1 / -1; }
+
+.score-header {
+  display: flex; align-items: center; gap: 32px;
+  flex-wrap: wrap; margin-bottom: 24px;
+}
+.score-ring-wrap { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.score-ring-wrap svg { transform: rotate(-90deg); }
+.score-ring-track { fill: none; stroke: var(--surface2); stroke-width: 12; }
+.score-ring-fill  { fill: none; stroke-width: 12; stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1); }
+.score-ring-text {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-ring-text .num { font-size: 2.2rem; font-weight: 800; }
+.score-ring-text .label { font-size: .7rem; color: var(--text-muted); }
+
+.score-summary { flex: 1; }
+.score-summary h2 { font-size: 1.4rem; margin-bottom: 6px; }
+.score-summary .jd-meta { font-size: .82rem; color: var(--text-muted); }
+.engine-tag {
+  display: inline-block; margin-top: 8px;
+  font-size: .72rem; padding: 2px 8px;
+  border-radius: 4px; border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.engine-tag.ai { border-color: var(--accent); color: var(--accent); }
+
+/* ── 维度条 ─────────────────────────────────────────────────── */
+.dim-bars { display: flex; flex-direction: column; gap: 14px; }
+.dim-row { display: flex; align-items: center; gap: 12px; }
+.dim-label { width: 68px; font-size: .82rem; color: var(--text-muted); text-align: right; flex-shrink: 0; }
+.dim-bar-bg { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.dim-bar-fill {
+  height: 100%; border-radius: 4px;
+  background: var(--accent);
+  transition: width 1s cubic-bezier(.4,0,.2,1);
+}
+.dim-score { width: 34px; font-size: .82rem; font-weight: 600; text-align: right; flex-shrink: 0; }
+.dim-reason { font-size: .75rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ── 技能标签 ────────────────────────────────────────────────── */
+.skill-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.skill-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: .78rem; font-weight: 500;
+  border: 1px solid;
+}
+.skill-tag.match {
+  background: rgba(52,211,153,.1); color: var(--success);
+  border-color: rgba(52,211,153,.3);
+}
+.skill-tag.miss {
+  background: rgba(255,92,108,.08); color: var(--danger);
+  border-color: rgba(255,92,108,.25);
+}
+
+/* ── 优势/建议列表 ────────────────────────────────────────────── */
+.insight-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.insight-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: .88rem; padding: 8px 12px;
+  border-radius: 8px; background: var(--surface2);
+}
+.insight-list.strength li { border-left: 3px solid var(--success); }
+.insight-list.suggest  li { border-left: 3px solid var(--warn); }
+.insight-icon { flex-shrink: 0; font-size: 1rem; }
+
+/* ── AI 分析块 ──────────────────────────────────────────────── */
+.ai-block {
+  margin-top: 20px; padding: 16px;
+  background: linear-gradient(135deg, rgba(108,99,255,.08), rgba(0,212,170,.05));
+  border: 1px solid rgba(108,99,255,.25); border-radius: 10px;
+}
+.ai-block .ai-label {
+  font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 8px;
+}
+.ai-block p { font-size: .88rem; line-height: 1.7; color: var(--text); }
+
+/* ── 状态指示 ────────────────────────────────────────────────── */
+.status-bar {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 14px; font-size: .88rem; color: var(--text-muted);
+}
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-bar {
+  background: rgba(255,92,108,.1); border: 1px solid rgba(255,92,108,.3);
+  border-radius: 8px; padding: 10px 14px;
+  color: var(--danger); font-size: .85rem;
+}
+
+/* ── 空状态 / 提示 ────────────────────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 48px 24px;
+  color: var(--text-muted);
+}
+.empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-state p { font-size: .88rem; line-height: 1.7; }
+
+/* ── 分隔线 ─────────────────────────────────────────────────── */
+hr { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+/* ── 评级徽章 ─────────────────────────────────────────────────── */
+.grade-badge {
+  display: inline-block; padding: 4px 14px; border-radius: 6px;
+  font-size: .85rem; font-weight: 700;
+}
+.grade-S { background: rgba(52,211,153,.15); color: var(--success); border: 1px solid rgba(52,211,153,.3); }
+.grade-A { background: rgba(108,99,255,.15); color: var(--accent);  border: 1px solid rgba(108,99,255,.3); }
+.grade-B { background: rgba(245,158,11,.12); color: var(--warn);    border: 1px solid rgba(245,158,11,.3); }
+.grade-C { background: rgba(255,92,108,.1);  color: var(--danger);  border: 1px solid rgba(255,92,108,.25); }
+
+/* ── 图表容器 ─────────────────────────────────────────────────── */
+.chart-wrap { position: relative; height: 220px; margin-top: 8px; }

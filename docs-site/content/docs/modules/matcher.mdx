@@ -1,0 +1,108 @@
+---
+title: service/matcher.js
+description: 本地三维加权匹配算法，纯函数，不调用网络（Sprint 5）。
+---
+
+# service/matcher.js
+
+**层级**：`service/matcher`（依赖 `config`）
+**Sprint**：S5
+
+---
+
+## 主函数
+
+### `computeMatch(jd, resume)`
+
+```ts
+function computeMatch(jd: ParsedJD, resume: Resume): MatchResult
+```
+
+纯函数，同步，无网络请求。
+
+---
+
+## 三维评分详解
+
+### 技能维度（weight = 0.50）
+
+```
+requiredScore = (requiredMatched / required.length) × 100
+niceBonus     = (niceMatched / nice.length) × 15     // 上限 15 分
+skillScore    = min(100, requiredScore × 0.85 + niceBonus)
+```
+
+**技能匹配逻辑**（`resumeContains`）：
+
+```js
+// 使用双向包含检查（处理缩写变体）
+resumeLower.some(r => r.includes(skill) || skill.includes(r))
+```
+
+例：简历写 `"kubernetes"`，JD 要求 `"k8s"` → 无法匹配（需要完全包含）。
+例：简历写 `"go"`，JD 要求 `"golang"` → `"golang".includes("go")` = true ✅
+
+### 经验维度（weight = 0.30）
+
+工作年限通过 `experience[].from/to` 累加月份计算：
+
+```js
+totalMonths += (toYear - fromYear) × 12 + (toMonth - fromMonth)
+actualYears  = round(totalMonths / 12)
+```
+
+`to === 'present'` 时使用当前日期。
+
+| 差值（实际 - 要求） | 得分 |
+|--------------------|------|
+| ≥ +2 年 | 100 |
+| 0 ~ +2 年 | 90 |
+| -1 年 | 65 |
+| -2 年 | 40 |
+| < -2 年 | 20 |
+
+### 学历维度（weight = 0.20）
+
+```
+phd=4, master=3, bachelor=2, any=1
+
+actual ≥ required + 1  → 100
+actual = required       → 90
+actual = required - 1   → 60
+actual < required - 1   → 30
+```
+
+---
+
+## MatchResult 产出
+
+```js
+{
+  totalScore:   Math.min(100, weightedSum),
+  dimensions:   [skillDim, expDim, eduDim],
+  skillMatches: buildSkillMatches(jd, resume),
+  missingSkills: skillMatches.filter(m => !m.matched).map(m => m.skill),
+  strengths:    buildStrengths(...),
+  suggestions:  buildSuggestions(...),
+  engine:       'local',
+}
+```
+
+### 优势（strengths）生成规则
+
+| 条件 | 优势文本 |
+|------|---------|
+| skillScore ≥ 75 | 技能高度匹配（N分） |
+| expScore ≥ 85 | 工作经验充足，超出要求 |
+| eduScore ≥ 90 | 学历达标或超出要求 |
+| 简历含 `ai agent` / `langchain` | 具备稀缺 AI Agent 工程经验 |
+| 简历含 `solana` / `web3` | 具备 Web3 / 区块链实战经验 |
+
+### 建议（suggestions）生成规则
+
+| 条件 | 建议文本 |
+|------|---------|
+| missingSkills.length > 0 | 补充技能：[top 4 缺失技能] |
+| expScore < 65 | 工作年限略显不足，建议强调项目深度 |
+| eduScore < 60 | 学历与要求有差距，建议突出证书 |
+| 全部良好 | 建议量化业务影响（GMV、性能提升%） |

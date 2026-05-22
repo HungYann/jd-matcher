@@ -1,0 +1,134 @@
+---
+title: types/index.js
+description: 项目所有核心数据类型定义（JSDoc typedef，Sprint 1）。
+---
+
+# types/index.js
+
+**层级**：`types`（最底层，无任何 import）
+**Sprint**：S1
+
+所有类型均以 JSDoc `@typedef` 定义，供其他模块通过 `@type` 注解使用，
+无运行时代码（除 `EMPTY_STATE` 常量）。
+
+---
+
+## ParsedJD
+
+JD 文本解析结果，由 `service/parser.js` 生成。
+
+```ts
+interface ParsedJD {
+  rawText:        string;    // 原始 JD 文本
+  title:          string;    // 职位名称
+  company:        string;    // 公司名称（可能为空）
+  requiredSkills: string[];  // 硬性要求技能列表
+  niceSkills:     string[];  // 加分技能列表
+  minYears:       number;    // 最低工作年限（-1 = 未提及）
+  eduLevel:       'bachelor' | 'master' | 'phd' | 'any';
+  keywords:       string[];  // 全部识别关键词
+}
+```
+
+---
+
+## Resume
+
+候选人简历，支持 JSON 格式直接反序列化。
+
+```ts
+interface ResumeExperience {
+  company:   string;
+  title:     string;
+  from:      string;    // 'YYYY.MM'
+  to:        string;    // 'YYYY.MM' | 'present'
+  desc:      string;
+  techStack: string[];
+}
+
+interface ResumeEducation {
+  school: string;
+  degree: 'bachelor' | 'master' | 'phd';
+  major:  string;
+  from:   string;
+  to:     string;
+  gpa:    string;
+}
+
+interface Resume {
+  name:       string;
+  location:   string;
+  summary:    string;
+  skills:     string[];              // 扁平技能列表（用于匹配）
+  experience: ResumeExperience[];
+  education:  ResumeEducation[];
+  languages:  string[];
+}
+```
+
+---
+
+## MatchResult
+
+匹配结果，由 `matcher.js` 或 `aiMatcher.js` 产出。
+
+```ts
+interface SkillMatch {
+  skill:    string;
+  matched:  boolean;
+  source?:  string;    // 简历中匹配到的原文
+}
+
+interface DimensionScore {
+  label:  string;   // '技能匹配' | '经验匹配' | '学历匹配'
+  score:  number;   // 0~100
+  reason: string;   // 简短说明
+}
+
+interface MatchResult {
+  totalScore:    number;            // 0~100 加权总分
+  dimensions:    DimensionScore[];  // [技能, 经验, 学历]
+  skillMatches:  SkillMatch[];      // 逐条技能匹配明细
+  missingSkills: string[];          // 缺失技能
+  strengths:     string[];          // 优势亮点
+  suggestions:   string[];          // 优化建议
+  engine:        'local' | 'ai';    // 使用的引擎
+  aiAnalysis?:   string;            // AI 自然语言评价（可选）
+}
+```
+
+---
+
+## AppState & AppStatus
+
+全局应用状态，由 `runtime/store.js` 管理。
+
+```ts
+type AppStatus = 'idle' | 'loading' | 'matching' | 'done' | 'error';
+
+interface AppState {
+  status:     AppStatus;
+  jdText:     string;
+  parsedJD:   ParsedJD | null;
+  resume:     Resume | null;
+  result:     MatchResult | null;
+  error:      string | null;
+  apiKey:     string | null;
+  engineMode: 'local' | 'ai';
+}
+```
+
+初始状态（`EMPTY_STATE`）：
+
+```js
+export const EMPTY_STATE = {
+  status:     'idle',
+  jdText:     '',
+  parsedJD:   null,
+  resume:     null,
+  result:     null,
+  error:      null,
+  apiKey:     null,
+  engineMode: 'local',
+};
+```

@@ -1,0 +1,75 @@
+---
+title: config/index.js
+description: 常量、匹配权重、技能词库与 .env 异步加载（Sprint 2）。
+---
+
+# config/index.js
+
+**层级**：`config`（依赖 `types`）
+**Sprint**：S2
+
+---
+
+## 导出项速查
+
+| 导出 | 类型 | 说明 |
+|------|------|------|
+| `initConfig()` | `async () => envMap` | 加载 `.env`，更新所有配置 |
+| `SITE_CONFIG` | `object` | appTitle / appName / resumeUrl |
+| `RESUME_URL` | `string` | 远程简历 URL（空则禁用） |
+| `AI_CONFIG` | `object` | claude / openai 的 endpoint / model / maxTokens |
+| `WEIGHTS` | `object` | 三维权重（skill / experience / education） |
+| `EDU_LEVEL_MAP` | `object` | 学历数值映射 |
+| `EDU_KEYWORDS` | `object` | 学历识别关键词 |
+| `SKILL_DICTIONARY` | `object` | 7 大分类技能词库 |
+| `ALL_SKILLS` | `string[]` | SKILL_DICTIONARY 的平铺数组 |
+| `EXPERIENCE_PATTERNS` | `RegExp[]` | 年限提取正则（中英文） |
+
+---
+
+## initConfig()
+
+```js
+// 在应用启动时调用一次
+import { initConfig } from '../config/index.js';
+await initConfig();
+```
+
+- 发起 `fetch('/.env')` 请求，解析 KEY=VALUE 格式
+- 更新模块级 `SITE_CONFIG`、`RESUME_URL`、`AI_CONFIG`
+- 文件不存在 / 请求失败 → 静默降级到 `DEFAULT_ENV`
+- 多次调用共享同一个 Promise（单例模式，不重复请求）
+
+---
+
+## WEIGHTS — 匹配权重
+
+```js
+export const WEIGHTS = {
+  skill:      0.50,   // 技能匹配占 50%
+  experience: 0.30,   // 经验年限占 30%
+  education:  0.20,   // 学历占 20%
+};
+```
+
+---
+
+## SKILL_DICTIONARY — 技能词库
+
+覆盖 7 大技术领域，共约 80+ 个词条：
+
+| 分类 | 示例词条 |
+|------|---------|
+| `languages` | python, golang, rust, typescript... |
+| `ai` | langchain, rag, llm, embedding, prompt engineering... |
+| `backend` | fastapi, grpc, graphql, microservices... |
+| `database` | postgresql, redis, kafka, elasticsearch... |
+| `web3` | solana, ethereum, smart contract, defi... |
+| `devops` | docker, kubernetes, terraform, github actions... |
+| `data` | spark, airflow, dbt, data pipeline... |
+
+---
+
+## .env 配置项
+
+详见 [配置指南](/docs/configuration)。

@@ -1,0 +1,117 @@
+---
+title: ui/app.js + index.html
+description: DOM 渲染层，通过 store.subscribe 驱动，不直接操作 service/repo（Sprint 8）。
+---
+
+# ui/app.js + index.html + style.css
+
+**层级**：`ui`（依赖 `runtime/store`）
+**Sprint**：S8
+
+---
+
+## 架构约束
+
+UI 层遵守以下强规则：
+
+- **只通过 `store.*` 操作数据**，禁止直接 `import` service 或 repo
+- 所有状态通过 `store.subscribe()` 监听，不做本地缓存
+- 图表（Chart.js）通过 CDN 引入，不打包
+
+---
+
+## 页面布局
+
+```
+┌─────────── Header ────────────────────────────────┐
+│  🎯 Dream Offer Matcher         ⚙️ 引擎状态 Badge  │
+└───────────────────────────────────────────────────┘
+┌──── 左栏（输入）──────┐  ┌──── 右栏（结果）──────────┐
+│  📋 JD 文本输入       │  │  📊 总分 + 评级           │
+│  ─────────────────── │  │  🕸 雷达图（Chart.js）    │
+│  👤 简历来源          │  │  📋 三维得分详情           │
+│     拖拽 / 点击上传   │  │  🔧 技能匹配明细           │
+│  ─────────────────── │  │  ⭐ 优势亮点               │
+│  ⚙️ AI 配置           │  │  💡 优化建议               │
+│     API Key 输入     │  │  🤖 AI 分析（可选）         │
+│     引擎切换开关      │  └───────────────────────────┘
+│  ─────────────────── │
+│  [开始匹配] 按钮      │
+└───────────────────────┘
+```
+
+---
+
+## 关键 DOM 元素
+
+| ID | 类型 | 说明 |
+|----|------|------|
+| `jd-input` | textarea | JD 文本输入 |
+| `file-input` | input[file] | 简历文件上传 |
+| `upload-zone` | div | 拖拽上传区域 |
+| `api-key-input` | input[password] | API Key 输入 |
+| `engine-toggle` | checkbox/button | 本地/AI 引擎切换 |
+| `match-btn` | button | 触发匹配 |
+| `result-section` | div | 结果展示容器 |
+| `total-score` | div | 总分数字 |
+| `radar-chart` | canvas | Chart.js 雷达图 |
+| `engine-badge` | span | 当前引擎状态标识 |
+
+---
+
+## 状态驱动渲染
+
+```js
+// 订阅 store，状态变化自动触发 UI 更新
+subscribe((state) => {
+  updateEngineBadge(state.engineMode);
+
+  switch (state.status) {
+    case 'loading':   showSpinner(); break;
+    case 'matching':  showMatchingProgress(); break;
+    case 'done':      renderResult(state.result); break;
+    case 'error':     showError(state.error); break;
+    case 'idle':      clearResult(); break;
+  }
+});
+```
+
+---
+
+## 雷达图配置
+
+使用 Chart.js 4.x 渲染三维雷达图：
+
+```js
+new Chart(canvas, {
+  type: 'radar',
+  data: {
+    labels: ['技能匹配', '经验匹配', '学历匹配'],
+    datasets: [{
+      data: [skillScore, expScore, eduScore],
+      backgroundColor: 'rgba(99,102,241,0.2)',
+      borderColor: 'rgba(99,102,241,0.8)',
+    }],
+  },
+  options: {
+    scales: { r: { min: 0, max: 100 } },
+  },
+});
+```
+
+---
+
+## 文件拖拽上传
+
+```js
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.classList.add('drag-over');
+});
+
+uploadZone.addEventListener('drop', async (e) => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) await store.loadResumeAction({ file });
+});
+```

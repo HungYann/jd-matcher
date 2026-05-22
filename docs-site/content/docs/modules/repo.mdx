@@ -1,0 +1,115 @@
+---
+title: repo/resumeRepo.js
+description: 简历数据获取模块，支持本地文件和远程 URL（Sprint 3）。
+---
+
+# repo/resumeRepo.js
+
+**层级**：`repo`（依赖 `config`）
+**Sprint**：S3
+
+---
+
+## 主入口
+
+### `loadResume(opts?)`
+
+```ts
+async function loadResume(
+  opts?: { file?: File }
+): Promise<{ resume: Resume; source: string }>
+```
+
+优先级：**本地文件 > 远程 URL**
+
+```js
+// 本地文件优先
+if (opts.file) → loadFromFile(opts.file)
+
+// 无文件则尝试远程 URL
+if (RESUME_URL) → fetch(RESUME_URL)
+
+// 均无 → 抛出错误
+throw new Error('请先上传你的简历文件')
+```
+
+---
+
+## loadFromFile(file)
+
+根据文件扩展名选择解析策略：
+
+```
+.json  → JSON.parse()              精度：完整 ⭐⭐⭐
+.pdf   → pdfjs-dist + 关键词扫描   精度：基础 ⭐⭐
+.txt   → 关键词扫描                精度：基础 ⭐⭐
+```
+
+### PDF 解析细节
+
+PDF 使用 `pdfjs-dist@4.x`（CDN 动态 import），不打包到主代码：
+
+```js
+const pdfjs = await import(
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs'
+);
+pdfjs.GlobalWorkerOptions.workerSrc =
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+```
+
+逐页提取文字后合并，再走关键词扫描流程。
+
+---
+
+## parseTextResume(text) — 粗解析
+
+对 TXT / PDF 的文本内容做关键词扫描，产出最小可用 `Resume`：
+
+```js
+// 内置 30 个常见技能词
+const knownSkills = [
+  'python','golang','go','rust','java','javascript','typescript',
+  'langchain','rag','llm','ai agent','docker','kubernetes','k8s',
+  'postgresql','mysql','redis','kafka','elasticsearch',
+  'prometheus','grafana','react','vue','solana','web3',
+  ...
+];
+```
+
+> **限制**：粗解析无法提取 `experience`（工作经历）和 `education`（教育）结构，
+> 这两项会为空数组，影响经验年限和学历维度的评分精度。
+> 建议提供 JSON 格式简历。
+
+---
+
+## JSON 简历格式示例
+
+```json
+{
+  "name": "张三",
+  "location": "上海",
+  "summary": "5年后端工程师，专注 Go + AI Agent",
+  "skills": ["golang", "python", "langchain", "postgresql", "docker", "kubernetes"],
+  "experience": [
+    {
+      "company": "字节跳动",
+      "title": "高级后端工程师",
+      "from": "2022.03",
+      "to": "present",
+      "desc": "负责推荐系统后端服务",
+      "techStack": ["golang", "kafka", "redis"]
+    }
+  ],
+  "education": [
+    {
+      "school": "上海交通大学",
+      "degree": "master",
+      "major": "计算机科学",
+      "from": "2017.09",
+      "to": "2020.06",
+      "gpa": "3.8"
+    }
+  ],
+  "languages": ["中文", "英语"]
+}
+```

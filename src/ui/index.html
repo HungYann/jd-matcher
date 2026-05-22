@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dream Offer Matcher — 目标岗位匹配分析</title>
+  <link rel="stylesheet" href="style.css"/>
+  <!-- Chart.js（雷达图，可选） -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── Header ────────────────────────────────────────────── -->
+<header class="app-header">
+  <div class="logo">
+    <span>🎯</span>
+    <span id="app-name">Dream Offer Matcher</span>
+  </div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <span id="engine-badge" class="engine-badge">⚙️ 本地算法</span>
+  </div>
+</header>
+
+<!-- ── Main ──────────────────────────────────────────────── -->
+<div class="main-layout">
+
+  <!-- 左栏：输入 -->
+  <div style="display:flex; flex-direction:column; gap:16px;">
+
+    <!-- JD 输入 -->
+    <div class="card">
+      <div class="card-title accent">📋 粘贴 JD 描述</div>
+      <textarea id="jd-input"
+        placeholder="将职位描述（JD）粘贴到此处…
+
+例如：
+Senior Backend Engineer
+Requirements:
+- 3+ years of Go / Python experience
+- Familiar with Kubernetes, Docker
+- Experience with LLM / AI Agent preferred
+- Bachelor's degree in CS or related field"></textarea>
+    </div>
+
+    <!-- 简历来源 -->
+    <div class="card">
+      <div class="card-title">👤 简历来源</div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <span style="font-size:.85rem; color:var(--text-muted)">
+          请上传你的简历后开始匹配
+        </span>
+        <div id="resume-badge" class="resume-badge" style="display:none;"></div>
+      </div>
+
+      <!-- 本地上传 -->
+      <label>上传本地简历（.json / .txt / .pdf）</label>
+      <div id="upload-zone" class="upload-zone">
+        <input id="file-input" type="file" accept=".json,.txt,.pdf,application/pdf"/>
+        <div>🗂 拖拽文件或点击上传</div>
+        <div style="font-size:.75rem; margin-top:4px; opacity:.6">支持 JSON、TXT 和 PDF 简历</div>
+      </div>
+    </div>
+
+    <!-- AI 增强设置（折叠） -->
+    <div class="card">
+      <div id="collapse-header" class="collapse-header">
+        <span>🤖 AI 增强分析（可选）</span>
+        <i class="collapse-arrow">▾</i>
+      </div>
+      <div id="collapse-body" class="collapse-body">
+        <div style="padding-top:12px; display:flex; flex-direction:column; gap:10px;">
+          <label>
+            <input id="ai-toggle" type="checkbox" style="margin-right:6px; accent-color:var(--accent)"/>
+            启用 AI 增强分析
+          </label>
+          <div>
+            <label>API Key（Claude sk-ant-... 或 OpenAI sk-...）</label>
+            <input id="api-key" type="password" placeholder="粘贴 API Key"/>
+            <div style="font-size:.75rem; color:var(--text-muted); margin-top:4px;">
+              Key 只在本地使用，不会上传到任何服务器
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div style="display:flex; gap:10px;">
+      <button id="match-btn" class="btn btn-primary" style="flex:1">
+        ⚡ 开始匹配
+      </button>
+      <button id="reset-btn" class="btn btn-secondary">
+        ↺ 重置
+      </button>
+    </div>
+
+  </div>
+
+  <!-- 右栏：结果 -->
+  <div class="card result-panel">
+    <div class="card-title accent">📊 匹配分析报告</div>
+    <div id="result-section">
+      <div class="empty-state">
+        <div class="icon">🎯</div>
+        <p>粘贴 JD 文本后点击「开始匹配」<br/>即可看到多维度匹配分析报告</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

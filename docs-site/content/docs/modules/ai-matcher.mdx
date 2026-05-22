@@ -1,0 +1,131 @@
+---
+title: service/aiMatcher.js
+description: AI 增强匹配，支持 Claude / OpenAI，失败自动 fallback（Sprint 6）。
+---
+
+# service/aiMatcher.js
+
+**层级**：`service/ai`（依赖 `config`, `service/matcher`）
+**Sprint**：S6
+
+---
+
+## 主函数
+
+### `computeMatchWithAI(jd, resume, opts)`
+
+```ts
+async function computeMatchWithAI(
+  jd:     ParsedJD,
+  resume: Resume,
+  opts:   { apiKey: string; provider: 'claude' | 'openai' }
+): Promise<MatchResult>
+```
+
+执行流程：
+
+```
+1. 先调用 computeMatch() 获取本地基础分
+2. 构建 prompt（JD摘要 + 简历摘要 + 本地初步得分）
+3. 调用 Claude 或 OpenAI API
+4. 解析 JSON 响应
+5. 混合评分：AI×0.6 + 本地×0.4
+6. 失败 → 返回本地结果（含错误说明），不抛异常
+```
+
+---
+
+## Provider 自动识别
+
+```js
+// 由 runtime/store.js 在 runMatch() 中判断
+const provider = apiKey.startsWith('sk-ant') ? 'claude' : 'openai';
+```
+
+| API Key 前缀 | Provider |
+|-------------|---------|
+| `sk-ant-...` | Claude |
+| `sk-...`（其他） | OpenAI |
+
+---
+
+## Prompt 格式
+
+```
+你是一名专业的 HR 顾问。请对以下 JD 和简历进行匹配度分析，返回 JSON。
+
+## JD
+职位：{title}
+公司：{company}
+必要技能：{requiredSkills}
+加分技能：{niceSkills}
+经验要求：{minYears}年+
+学历要求：{eduLevel}
+
+## 候选人简历
+姓名：{name}
+技能：{skills.slice(0,25)}
+经验：{experience摘要}
+学历：{education摘要}
+
+## 本地算法初步得分
+总分：{localScore}/100
+技能：{skillDim}  经验：{expDim}  学历：{eduDim}
+
+## 要求的 JSON 格式
+{
+  "score": <0-100的整数>,
+  "analysis": "<3-5句自然语言综合评价>",
+  "strengths": ["亮点1", "亮点2", "亮点3"],
+  "suggestions": ["建议1", "建议2", "建议3"]
+}
+
+只返回 JSON，不要任何额外文字。
+```
+
+---
+
+## AI JSON 解析（三级容错）
+
+```js
+// 尝试 1：直接 JSON.parse
+JSON.parse(raw.trim())
+
+// 尝试 2：提取 ```json ... ``` 代码块
+raw.match(/```(?:json)?\s*([\s\S]+?)\s*```/)
+
+// 尝试 3：提取第一个 { ... }
+raw.match(/\{[\s\S]+\}/)
+
+// 全部失败 → 抛出 Error，被 catch 处理 → fallback 到本地结果
+```
+
+---
+
+## Fallback 保证
+
+```js
+} catch (err) {
+  console.warn('[aiMatcher] AI call failed, using local result:', err.message);
+  return {
+    ...localResult,
+    aiAnalysis: `AI 分析不可用（${err.message}），已使用本地算法结果。`,
+    engine: 'local',
+  };
+}
+```
+
+无论 API Key 无效、网络超时还是 JSON 解析失败，用户都能看到本地算法结果，
+不会白屏或报错。
+
+---
+
+## 混合评分公式
+
+```
+blendedScore = Math.round(aiScore × 0.6 + localScore × 0.4)
+finalScore   = Math.min(100, blendedScore)
+```
+
+AI 提供的 `strengths` / `suggestions` 覆盖本地算法的对应字段；
+`dimensions`（三维分）和 `skillMatches`（技能明细）保留本地算法结果。

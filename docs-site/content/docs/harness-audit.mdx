@@ -1,0 +1,229 @@
+---
+title: Harness 合规性审计
+description: 逐项检查 jd-matcher 是否符合 Harness 工程规范，列明已达标项与改进建议。
+---
+
+# Harness 合规性审计
+
+本文对照 **Harness 工程** 16 课规范，逐项检查 `jd-matcher` 项目的现状，
+给出达标评级和改进建议。
+
+---
+
+## 审计总览
+
+| 类别 | 检查项 | 状态 |
+|------|--------|------|
+| 项目记忆 | CLAUDE.md 存在且内容完整 | ✅ 达标 |
+| 项目记忆 | AGENTS.md 与 CLAUDE.md 同步 | ✅ 达标 |
+| Sprint 管理 | Sprint 合约格式正确 | ✅ 达标 |
+| Sprint 管理 | 独立 sprints.md 外部记忆文件 | ⚠️ 改进建议 |
+| 架构规范 | 依赖层级明确（types→ui） | ✅ 达标 |
+| 架构规范 | 依赖方向无逆向引用 | ✅ 达标 |
+| Skills | Skills 目录存在 | ✅ 达标 |
+| Skills | Skills 有 YAML frontmatter | ✅ 达标 |
+| Skills | Skills 配置在 `.claude/commands/` | ⚠️ 改进建议 |
+| Skills | 触发词（description 关键词）配置 | ⚠️ 部分 |
+| 自动化 | Hooks 配置（settings.json） | ❌ 缺失 |
+| 安全 | Permissions 配置 | ❌ 缺失 |
+| 上下文 | 高密度 CLAUDE.md | ✅ 达标 |
+| 计划先行 | 执行规范 | ✅ 达标 |
+
+**综合评分：10 / 14 项达标（71%）**
+
+---
+
+## ✅ 已达标项详解
+
+### 1. CLAUDE.md / AGENTS.md — 完整
+
+两份文件内容完全一致，覆盖了 Harness 规范要求的核心内容：
+
+- **项目目标**：一句话描述产品功能
+- **三 Agent 架构**：Planner → Generator → Evaluator 循环
+- **Sprint Contract 格式**：含 goal / impl / criteria / layer / blocked_by 五要素
+- **依赖层定义**：`types → config → repo → service → runtime → ui`
+- **Sprint 总计划表**：8 个 Sprint 带状态标记
+- **技术栈**：运行时、UI、AI 接入方式均有说明
+- **5 条核心规则**：含 AI fallback、层级约束等关键规范
+
+```
+密度得分：大量 3 分行（直接约束行为），少量废话行
+估算 token 占用：~600 tokens
+整体评价：高密度，符合规范
+```
+
+### 2. 依赖层级严格遵守
+
+实际代码的 `import` 链与 CLAUDE.md 声明完全一致：
+
+```
+types/index.js        (无 import)
+config/index.js       (import types)
+repo/resumeRepo.js    (import config)
+service/parser.js     (import config)
+service/matcher.js    (import config)
+service/aiMatcher.js  (import config, service/matcher)
+runtime/store.js      (import types, config, repo, service/*)
+ui/app.js             (import runtime/store)
+```
+
+未发现任何逆向依赖。
+
+### 3. Sprint Contract 规范
+
+8 个 Sprint 都有清晰的 goal / layer 映射。每个 Sprint 文件头的注释
+明确标注所属 Sprint 编号和依赖层，符合 contract 规范：
+
+```js
+// Sprint 5 — service/matcher
+// 本地多维加权匹配算法。
+// 依赖 types / config，不引用 repo/runtime/ui。
+```
+
+---
+
+## ⚠️ 需要改进项
+
+### 1. Sprint 进度应独立为 `docs/sprints.md`
+
+**现状**：Sprint 总计划嵌入在 CLAUDE.md 中。
+
+**问题**：
+- Sprint 进度频繁变化，放在 CLAUDE.md 中每次都要修改"规则文件"
+- 无法利用"外部记忆"策略——每次会话 CLAUDE.md 全量加载，Sprint 变更
+  会消耗更多 token
+
+**建议**：
+
+```bash
+# 将 Sprint 进度从 CLAUDE.md 中提取出来
+touch docs/sprints.md
+```
+
+```markdown
+<!-- docs/sprints.md -->
+## Sprint 进度记录
+
+| Sprint | Goal           | Layer           | 状态 | 完成时间   |
+|--------|----------------|-----------------|------|-----------|
+| S1     | 数据结构定义   | types           | ✅   | 2025-01   |
+| S2     | 配置与权重     | config          | ✅   | 2025-01   |
+...
+```
+
+然后 CLAUDE.md 只保留一个指针：
+```markdown
+## 当前 Sprint 进度 → docs/sprints.md
+```
+
+### 2. Skills 未放在 `.claude/commands/` 标准路径
+
+**现状**：Skills 放在 `skills/` 和 `.agents/skills/` 目录。
+
+**问题**：Claude Code 自动扫描的是 `~/.claude/commands/`，放在项目内
+的 `skills/` 目录不会自动触发。
+
+**建议**：
+
+```bash
+# 方案 A：项目级 commands 目录（Claude Code 支持）
+mkdir -p .claude/commands
+cp skills/job-search/SKILL.md .claude/commands/job-search.md
+cp skills/target-job-matcher/SKILL.md .claude/commands/target-job-matcher.md
+```
+
+或者在 CLAUDE.md 中标注 Skills 的手动加载路径。
+
+### 3. Skills 触发词需要中文关键词
+
+**现状**：`job-search` Skill 的 description 全部是英文，
+`target-job-matcher` 也以英文为主。
+
+**问题**：当用户用中文输入"帮我找工作"或"分析这些岗位"时，
+Claude Code 不会自动匹配这两个 Skill。
+
+**建议**：在 frontmatter description 中添加中文触发词：
+
+```yaml
+---
+name: job-search
+description: >
+  职位搜索与筛选助手。触发词：找工作、搜职位、求职、岗位筛选、
+  job search、find jobs、compare postings
+---
+```
+
+---
+
+## ❌ 缺失项与补全方案
+
+### 1. Hooks — 未配置
+
+项目没有 `.claude/settings.json`，因此没有任何自动化 Hook。
+
+**建议添加的 Hooks**：
+
+```json
+// .claude/settings.json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node --check $CLAUDE_TOOL_OUTPUT_FILE_PATH 2>&1 || true"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+这会在 Claude 写入 `.js` 文件后，立即用 `node --check` 验证语法，
+发现错误自动反馈给 Claude 修复（对应项目 `npm run lint` 的轻量版）。
+
+### 2. Permissions — 未配置
+
+没有权限边界，Claude 理论上可以执行任意命令。
+
+**建议最小权限配置**：
+
+```json
+// .claude/settings.json（与上面的 hooks 合并）
+{
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Bash(python3 -m http.server *)",
+      "Bash(npm run *)",
+      "Bash(node --check *)",
+      "Write(src/**)",
+      "Write(docs/**)",
+      "Write(tests/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Write(.env)",
+      "Bash(curl * -X DELETE *)"
+    ],
+    "requireApproval": [
+      "Bash(git push *)"
+    ]
+  }
+}
+```
+
+---
+
+## 改进路线图
+
+按优先级排序：
+
+1. **高优先级**：创建 `docs/sprints.md`，从 CLAUDE.md 提取进度记录
+2. **高优先级**：添加 `.claude/settings.json`（Hooks + Permissions）
+3. **中优先级**：将 Skills 复制到 `.claude/commands/`，并添加中文触发词
+4. **低优先级**：为 `tests/unit/` 补充更多断言测试，完善 Evaluator 角色

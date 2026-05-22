@@ -1,0 +1,108 @@
+---
+title: runtime/store.js
+description: 轻量响应式状态管理，UI 层通过 subscribe 监听状态变化（Sprint 7）。
+---
+
+# runtime/store.js
+
+**层级**：`runtime`（依赖 `types, config, repo, service/*`）
+**Sprint**：S7
+
+---
+
+## 设计模式
+
+手动实现的 Pub/Sub 模式，无第三方依赖：
+
+```js
+let state = { ...EMPTY_STATE };
+const listeners = new Set();
+
+function setState(patch) {
+  state = { ...state, ...patch };  // 不可变更新
+  listeners.forEach(fn => fn({ ...state }));  // 通知所有订阅者
+}
+```
+
+---
+
+## 导出的 API
+
+### 状态读取
+
+```js
+import { getState } from '../runtime/store.js';
+const { status, result, resume } = getState();
+```
+
+### 订阅
+
+```js
+import { subscribe } from '../runtime/store.js';
+
+const unsubscribe = subscribe((state) => {
+  // 每次 state 变化都会调用
+  renderUI(state);
+});
+
+// 取消订阅
+unsubscribe();
+```
+
+### Actions
+
+| Action | 说明 |
+|--------|------|
+| `setJDText(text)` | 更新 JD 文本，清空上次结果 |
+| `setEngineConfig(apiKey, engineMode)` | 更新 API Key 和引擎模式 |
+| `loadResumeAction({ file? })` | 加载简历（异步），管理 loading/error 状态 |
+| `runMatch()` | 执行完整匹配流程（异步） |
+| `reset()` | 还原到 EMPTY_STATE |
+
+---
+
+## loadResumeAction 状态流
+
+```
+调用 loadResumeAction()
+  └─► setState({ status: 'loading', error: null })
+        │
+        ├─ 成功 ──► setState({ resume, status: 'idle', resumeSource })
+        └─ 失败 ──► setState({ status: 'error', error: '简历加载失败：...' })
+```
+
+## runMatch 状态流
+
+```
+调用 runMatch()
+  ├─ 无 jdText ──► setState({ error: '请先粘贴 JD 文本' })（不改变 status）
+  │
+  └─► setState({ status: 'matching', error: null, result: null })
+        │
+        ├─ Step 1: parseJD(jdText) → setState({ parsedJD })
+        ├─ Step 2: 无 resume → throw Error
+        ├─ Step 3:
+        │     engineMode === 'ai' && apiKey
+        │       ? computeMatchWithAI(...)
+        │       : computeMatch(...)
+        │
+        ├─ 成功 ──► setState({ result, status: 'done' })
+        └─ 失败 ──► setState({ status: 'error', error: '匹配计算失败：...' })
+```
+
+---
+
+## UI 集成示例
+
+```js
+// ui/app.js 中的订阅逻辑（简化）
+import { subscribe, runMatch } from '../runtime/store.js';
+
+subscribe((state) => {
+  updateStatus(state.status);
+  if (state.status === 'done') renderResult(state.result);
+  if (state.status === 'error') showError(state.error);
+});
+
+document.getElementById('match-btn').addEventListener('click', runMatch);
+```

@@ -1,0 +1,127 @@
+---
+title: 配置指南
+description: .env 文件所有配置项说明，以及如何自定义品牌和 AI 接入。
+---
+
+# 配置指南
+
+JD Matcher 通过根目录的 `.env` 文件配置，应用启动时由浏览器异步加载。
+所有配置项均有默认值，`.env` 缺失时会静默降级，页面仍可正常使用。
+
+---
+
+## 快速开始
+
+```bash
+# 1. 从示例文件创建 .env
+cp .env.example .env
+
+# 2. 按需编辑
+nano .env   # 或任意文本编辑器
+
+# 3. 启动服务
+npm run dev
+```
+
+---
+
+## 所有配置项
+
+### 站点品牌
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `JDM_APP_TITLE` | `Dream Offer Matcher — 目标岗位匹配分析` | 浏览器标签页标题 |
+| `JDM_APP_NAME` | `Dream Offer Matcher` | 页头 Logo 文字 |
+| `JDM_RESUME_URL` | `（空）` | 预置远程简历 JSON URL（空则禁用） |
+
+```dotenv
+JDM_APP_TITLE=我的求职助手
+JDM_APP_NAME=Offer Hunter
+```
+
+---
+
+### Claude API
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `JDM_CLAUDE_ENDPOINT` | `https://api.anthropic.com/v1/messages` | Claude API 端点 |
+| `JDM_CLAUDE_MODEL` | `claude-haiku-4-5` | 使用的 Claude 模型 |
+| `JDM_CLAUDE_MAX_TOKENS` | `1024` | 最大输出 token 数 |
+
+```dotenv
+# 使用更强的模型（更慢更贵）
+JDM_CLAUDE_MODEL=claude-sonnet-4-5
+JDM_CLAUDE_MAX_TOKENS=2048
+```
+
+---
+
+### OpenAI API
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `JDM_OPENAI_ENDPOINT` | `https://api.openai.com/v1/chat/completions` | OpenAI API 端点 |
+| `JDM_OPENAI_MODEL` | `gpt-4o-mini` | 使用的 OpenAI 模型 |
+| `JDM_OPENAI_MAX_TOKENS` | `1024` | 最大输出 token 数 |
+
+```dotenv
+# 使用 gpt-4o
+JDM_OPENAI_MODEL=gpt-4o
+JDM_OPENAI_MAX_TOKENS=2048
+```
+
+---
+
+## API Key 说明
+
+> ⚠️ API Key **不应写入 `.env` 文件**。
+
+用户在页面的「AI 配置」卡片中直接输入 API Key，Key 只在当前浏览器会话中保存，
+不发送到任何服务器（直接从浏览器调用 AI API）。
+
+**Provider 自动识别**：
+- `sk-ant-...` 开头 → Claude API
+- 其他 → OpenAI API
+
+---
+
+## 远程简历预置（JDM_RESUME_URL）
+
+适合将工具分享给他人时预置候选人简历：
+
+```dotenv
+# 指向一个公开可访问的 JSON 简历
+JDM_RESUME_URL=https://your-domain.com/resume.json
+```
+
+> 要求 JSON 格式，结构与 `Resume` 类型定义一致（见 [types 文档](/docs/modules/types)）。
+> 服务器需支持 CORS（`Access-Control-Allow-Origin: *`）。
+
+---
+
+## .env 格式规范
+
+```dotenv
+# 注释行（以 # 开头）
+KEY=value          # 普通赋值
+KEY='带空格的值'   # 单引号（引号会被去掉）
+KEY="带空格的值"   # 双引号（引号会被去掉）
+```
+
+解析规则：
+- 忽略空行和注释行（`#` 开头）
+- 取第一个 `=` 作为分隔符
+- 去除值首尾的单/双引号
+
+---
+
+## 安全提示
+
+| 注意项 | 说明 |
+|--------|------|
+| API Key 不写入 .env | 用户页面填写，不落磁盘 |
+| .env 已加入 .gitignore | 避免意外提交到仓库 |
+| 远程简历 URL 需 HTTPS | 避免混合内容警告 |
+| 私人简历 JSON 不要公开托管 | 保护个人信息 |

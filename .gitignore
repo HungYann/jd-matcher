@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+docs-site/node_modules/
+
+# Next.js build output
+docs-site/.next/
+docs-site/out/
+
+# Environment variables (never commit)
+.env
+.env.local
+.env.production
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+nohup.out
+
+# Editor
+.vscode/
+.idea/

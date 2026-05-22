@@ -1,0 +1,66 @@
+---
+title: JD Matcher — 项目概览
+description: 将职位描述与简历进行多维度匹配，帮助求职者快速筛选最值得投递的岗位。
+---
+
+# JD Matcher — 项目概览
+
+**Dream Offer Matcher** 是一款运行在纯浏览器中的 JD × 简历匹配分析工具。
+用户粘贴职位描述（JD），上传简历，工具即刻计算多维度匹配分数，并输出可视化分析报告。
+
+---
+
+## 核心功能
+
+| 功能 | 说明 |
+|------|------|
+| **JD 解析** | 从原始 JD 文本提取职位名、技能要求、工作年限、学历要求 |
+| **本地匹配** | TF-IDF 关键词权重 + 三维加权评分（技能 50%、经验 30%、学历 20%） |
+| **AI 增强匹配** | 调用 Claude / OpenAI，与本地算法混合评分（AI 60% + 本地 40%） |
+| **可视化报告** | 雷达图、技能匹配明细、优势亮点、优化建议 |
+| **多格式简历** | 支持 JSON / TXT / PDF 上传 |
+
+---
+
+## 技术栈一览
+
+```
+运行时    纯浏览器（无需 Node.js / npm）
+语言      JavaScript ES2022，ES Modules
+UI        Vanilla HTML5 + CSS3（无框架）
+图表      Chart.js 4.x（CDN）
+AI 接入   Claude API / OpenAI API（用户自填 Key）
+算法      TF-IDF + 多维加权评分
+PDF 解析  pdfjs-dist 4.x（动态 import，CDN）
+配置      .env 文件（浏览器 fetch 读取）
+```
+
+---
+
+## 快速启动
+
+```bash
+# 1. 复制并编辑配置（可选）
+cp .env.example .env
+
+# 2. 启动静态服务器（任选其一）
+python3 -m http.server 4173
+# 或
+npm run dev
+
+# 3. 打开浏览器
+open http://localhost:4173
+```
+
+---
+
+## 文档导航
+
+<Cards>
+  <Card title="Harness 合规审计" href="/docs/harness-audit" description="逐项检查项目是否符合 Harness 工程规范" />
+  <Card title="架构设计" href="/docs/architecture" description="依赖层级、数据流与三 Agent 开发协议" />
+  <Card title="Sprint 历史" href="/docs/sprints" description="8 个 Sprint 的目标、实现与验收记录" />
+  <Card title="模块文档" href="/docs/modules" description="每个源码模块的职责与 API" />
+  <Card title="Skills" href="/docs/skills" description="job-search 和 target-job-matcher 技能说明" />
+  <Card title="配置指南" href="/docs/configuration" description=".env 所有配置项说明" />
+</Cards>

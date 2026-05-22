@@ -1,0 +1,34 @@
+---
+title: 模块概览
+description: jd-matcher 的六层模块架构及各层职责速查。
+---
+
+# 模块概览
+
+项目源码按依赖方向分为 6 层，每层包含 1 个或多个模块。
+
+```
+src/
+├── types/         → 数据结构定义（无副作用）
+├── config/        → 常量、权重、词库、.env 加载
+├── repo/          → 数据获取（文件 / 网络）
+├── service/
+│   ├── parser.js  → JD 文本解析
+│   ├── matcher.js → 本地多维评分
+│   └── aiMatcher.js → AI 增强评分
+├── runtime/       → 响应式状态管理
+└── ui/            → DOM 渲染与交互
+```
+
+## 快速导航
+
+<Cards>
+  <Card title="types/index.js" href="/docs/modules/types" description="ParsedJD · Resume · MatchResult · AppState" />
+  <Card title="config/index.js" href="/docs/modules/config" description="WEIGHTS · SKILL_DICTIONARY · initConfig()" />
+  <Card title="repo/resumeRepo.js" href="/docs/modules/repo" description="loadResume() · loadFromFile()" />
+  <Card title="service/parser.js" href="/docs/modules/parser" description="parseJD() → ParsedJD" />
+  <Card title="service/matcher.js" href="/docs/modules/matcher" description="computeMatch() → MatchResult" />
+  <Card title="service/aiMatcher.js" href="/docs/modules/ai-matcher" description="computeMatchWithAI() + fallback" />
+  <Card title="runtime/store.js" href="/docs/modules/store" description="subscribe · runMatch · loadResumeAction" />
+  <Card title="ui/app.js + index.html" href="/docs/modules/ui" description="DOM 渲染、事件绑定、Chart.js 图表" />
+</Cards>

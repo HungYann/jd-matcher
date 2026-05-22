@@ -1,0 +1,10 @@
+{
+  "name": "jd-matcher",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "JD × 简历匹配度分析 HTML 工具",
+  "scripts": {
+    "dev":  "python3 -m http.server 4173",
+    "lint": "find src -name '*.js' -exec node --check {} \\;"
+  }
+}

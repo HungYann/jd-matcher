@@ -1,0 +1,101 @@
+---
+title: service/parser.js
+description: 从 JD 原始文本提取结构化字段，纯函数无副作用（Sprint 4）。
+---
+
+# service/parser.js
+
+**层级**：`service/parser`（依赖 `config`）
+**Sprint**：S4
+
+---
+
+## 主函数
+
+### `parseJD(rawText)`
+
+```ts
+function parseJD(rawText: string): ParsedJD
+```
+
+输入：JD 原始文本（任意格式）
+输出：`ParsedJD` 结构体
+
+纯函数，无网络请求、无副作用，同步执行。
+
+---
+
+## 字段提取策略
+
+### title — 职位名称
+
+按优先级尝试以下正则：
+
+1. `职位/position/role/title: [...]`
+2. `招聘/hiring [...]`
+3. 第一行包含 `engineer/developer/architect/manager` 的行
+4. Markdown 一级标题 `# [...]`
+5. 兜底：取第一非空行
+
+### company — 公司名
+
+```
+公司/company/employer: [...] → 提取
+at/@ [公司名]               → 提取
+```
+
+### requiredSkills vs niceSkills
+
+**段落定位**策略：
+
+```
+定位"必须"段落（取之后 500 字符）：
+  requirements / required skills / must have
+  岗位要求 / 任职要求 / 必须 / 必备
+
+定位"加分"段落（取之后 500 字符）：
+  nice to have / preferred / bonus / plus
+  加分项 / 优先考虑 / 优先
+
+在对应段落内扫描 ALL_SKILLS 词库
+niceSkills 去除与 requiredSkills 的重复
+```
+
+若找不到"必须"段落，则全文扫描（所有识别到的技能都归为 required）。
+若找不到"加分"段落，则 `niceSkills = []`。
+
+### minYears — 最低年限
+
+扫描 6 条正则（中英文）：
+
+```js
+/(\d+)\+?\s*年.*?经[验历]/
+/(\d+)\+?\s*years?\s+of\s+experience/i
+/(\d+)\+?\s*years?\s+experience/i
+/experience.*?(\d+)\+?\s*years?/i
+/至少\s*(\d+)\s*年/
+/minimum\s+(\d+)\s+years?/i
+```
+
+匹配不到则返回 `-1`（表示未提及）。
+
+### eduLevel — 学历要求
+
+```
+包含 phd / doctorate / 博士 / ph.d → 'phd'
+包含 master / 硕士 / graduate       → 'master'
+包含 bachelor / 本科 / degree        → 'bachelor'
+均无                                 → 'any'
+```
+
+---
+
+## 边界情况
+
+| 情况 | 处理方式 |
+|------|---------|
+| JD 无明确技能词 | `requiredSkills = []`，评分时给 70 分基准分 |
+| JD 无年限要求 | `minYears = -1`，按实际年限给分 |
+| JD 无学历要求 | `eduLevel = 'any'`，满分 90 |
+| 职位名过长 | 截断到 80 字符 |
+| 公司名过长 | 截断到 60 字符 |
