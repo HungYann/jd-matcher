@@ -410,27 +410,41 @@ textarea:focus { border-color: rgba(139,124,248,.5); box-shadow: 0 0 0 3px rgba(
 
 /* Provider Tabs */
 .provider-tabs {
-  display: flex; gap: 6px; flex-wrap: wrap;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
 }
 .provider-tab {
   font-family: 'Barlow', sans-serif;
-  font-size: .73rem; font-weight: 500;
-  padding: 5px 14px; border-radius: 9999px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
-  color: var(--muted); cursor: pointer;
-  transition: all .18s ease;
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 12px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.03);
+  cursor: pointer; transition: all .18s ease; text-align: left;
 }
 .provider-tab:hover {
-  border-color: rgba(139,124,248,.4);
-  color: var(--text);
+  border-color: rgba(255,255,255,.22);
+  background: rgba(255,255,255,.07);
 }
 .provider-tab.active {
-  border-color: rgba(139,124,248,.7);
-  background: rgba(139,124,248,.18);
-  color: var(--accent);
-  box-shadow: 0 0 8px rgba(139,124,248,.2);
+  border-color: rgba(139,124,248,.6);
+  background: rgba(139,124,248,.12);
+  box-shadow: 0 0 12px rgba(139,124,248,.18);
 }
+.provider-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem; flex-shrink: 0; color: white;
+}
+.provider-info {
+  display: flex; flex-direction: column; gap: 1px;
+}
+.provider-name {
+  font-size: .8rem; font-weight: 600; color: var(--text); line-height: 1;
+}
+.provider-desc {
+  font-size: .65rem; font-weight: 300; color: var(--subtle); line-height: 1;
+}
+.provider-tab.active .provider-name { color: var(--accent); }
+.provider-tab.active .provider-desc  { color: rgba(139,124,248,.65); }
 
 /* Resume Badge */
 .resume-badge {
