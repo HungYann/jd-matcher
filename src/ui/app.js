@@ -146,19 +146,19 @@ function render(state) {
 function renderResult(r, jd) {
   const grade  = scoreGrade(r.totalScore);
   const color  = scoreColor(r.totalScore);
-  const circum = 2 * Math.PI * 54;   // r=54 的圆周长
+  const circum = 2 * Math.PI * 50;
   const offset = circum * (1 - r.totalScore / 100);
 
   return `
 <div class="score-header">
   <div class="score-ring-wrap">
-    <svg width="140" height="140" viewBox="0 0 140 140">
-      <circle class="score-ring-track" cx="70" cy="70" r="54"/>
-      <circle class="score-ring-fill" cx="70" cy="70" r="54"
+    <svg width="130" height="130" viewBox="0 0 130 130">
+      <circle class="score-ring-track" cx="65" cy="65" r="50"/>
+      <circle class="score-ring-fill" cx="65" cy="65" r="50"
         id="ring-fill"
         stroke="${color}"
         stroke-dasharray="${circum}"
-        stroke-dashoffset="${offset}"/>
+        stroke-dashoffset="${circum}"/>
     </svg>
     <div class="score-ring-text">
       <span class="num" style="color:${color}">${r.totalScore}</span>
@@ -169,21 +169,18 @@ function renderResult(r, jd) {
   <div class="score-summary">
     <h2>${jd?.title || '职位匹配分析'}</h2>
     <div class="jd-meta">
-      ${jd?.company ? `🏢 ${jd.company} · ` : ''}
-      ${jd?.minYears > 0 ? `📅 ${jd.minYears}年+ · ` : ''}
-      ${jd?.eduLevel !== 'any' ? `🎓 ${eduLabel(jd.eduLevel)}` : ''}
+      ${jd?.company ? `🏢 ${jd.company}` : ''}
+      ${jd?.minYears > 0 ? ` &nbsp;·&nbsp; 📅 ${jd.minYears}年+` : ''}
+      ${jd?.eduLevel && jd.eduLevel !== 'any' ? ` &nbsp;·&nbsp; 🎓 ${eduLabel(jd.eduLevel)}` : ''}
     </div>
-    <div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+    <div class="score-badges">
       <span class="grade-badge grade-${grade.grade}">${grade.label}</span>
-      <span class="engine-tag ${r.engine === 'ai' ? 'ai' : ''}">${r.engine === 'ai' ? '🤖 AI 分析' : '⚙️ 本地算法'}</span>
+      <span class="engine-tag ${r.engine === 'ai' ? 'ai' : ''}">${r.engine === 'ai' ? '🤖 AI 分析' : '⚙ 本地算法'}</span>
     </div>
   </div>
 </div>
 
-<hr/>
-
-<!-- 维度分 -->
-<div class="card-title">维度分析</div>
+<div class="section-title">维度分析</div>
 <div class="dim-bars">
   ${r.dimensions.map((d, i) => `
     <div>
@@ -191,51 +188,49 @@ function renderResult(r, jd) {
         <span class="dim-label">${d.label}</span>
         <div class="dim-bar-bg">
           <div class="dim-bar-fill" id="dim-${i}"
-               style="width:0%; background:${scoreColor(d.score)}"></div>
+               style="width:0%; background:${scoreColor(d.score)}; box-shadow:0 0 8px ${scoreColor(d.score)}60"></div>
         </div>
         <span class="dim-score" style="color:${scoreColor(d.score)}">${d.score}</span>
       </div>
-      <div style="padding-left:82px"><span class="dim-reason">${d.reason}</span></div>
+      <div class="dim-reason">${d.reason}</div>
     </div>
   `).join('')}
 </div>
 
 <hr/>
 
-<!-- 技能标签 -->
-<div class="card-title">技能匹配明细</div>
+<div class="section-title">技能匹配明细</div>
 <div class="skill-tags">
   ${r.skillMatches.length
     ? r.skillMatches.map(m => `
         <span class="skill-tag ${m.matched ? 'match' : 'miss'}">
           ${m.matched ? '✓' : '✗'} ${m.skill}
         </span>`).join('')
-    : '<span style="color:var(--text-muted); font-size:.85rem">JD 未检测到具体技能词</span>'
+    : '<span style="color:var(--text-muted);font-size:.85rem">JD 未检测到具体技能词</span>'
   }
 </div>
 
 <hr/>
 
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; flex-wrap:wrap;">
-  <!-- 优势 -->
+<div class="insights-grid">
   <div>
-    <div class="card-title">💪 候选人亮点</div>
+    <div class="section-title">💪 候选人亮点</div>
     <ul class="insight-list strength">
-      ${r.strengths.map(s => `<li><span class="insight-icon">✦</span>${s}</li>`).join('')}
+      ${r.strengths.map(s => `<li><span class="insight-icon">✦</span><span>${s}</span></li>`).join('')}
     </ul>
   </div>
-  <!-- 建议 -->
   <div>
-    <div class="card-title">📈 提升建议</div>
+    <div class="section-title">📈 提升建议</div>
     <ul class="insight-list suggest">
-      ${r.suggestions.map(s => `<li><span class="insight-icon">→</span>${s}</li>`).join('')}
+      ${r.suggestions.map(s => `<li><span class="insight-icon">→</span><span>${s}</span></li>`).join('')}
     </ul>
   </div>
 </div>
 
 ${r.aiAnalysis ? `
+<hr/>
 <div class="ai-block">
-  <div class="ai-label">🤖 AI 深度评价</div>
+  <div class="ai-label">✦ AI 深度评价</div>
   <p>${r.aiAnalysis}</p>
 </div>` : ''}
 `;
@@ -244,13 +239,20 @@ ${r.aiAnalysis ? `
 // ── 动画 ──────────────────────────────────────────────────────────────────────
 
 function animateBars(r) {
-  // 维度进度条
-  r.dimensions.forEach((d, i) => {
-    requestAnimationFrame(() => {
+  // 用双 rAF 确保浏览器先完成初始渲染（width:0），再触发过渡动画
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    // 得分圆环
+    const ring = document.getElementById('ring-fill');
+    if (ring) {
+      const circum = 2 * Math.PI * 50;
+      ring.style.strokeDashoffset = circum * (1 - r.totalScore / 100);
+    }
+    // 维度进度条
+    r.dimensions.forEach((d, i) => {
       const el = document.getElementById(`dim-${i}`);
       if (el) el.style.width = d.score + '%';
     });
-  });
+  }));
 }
 
 // ── 工具 ──────────────────────────────────────────────────────────────────────

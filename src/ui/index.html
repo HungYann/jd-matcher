@@ -4,94 +4,118 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dream Offer Matcher — 目标岗位匹配分析</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css"/>
-  <!-- Chart.js（雷达图，可选） -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-<!-- ── Header ────────────────────────────────────────────── -->
+<!-- 背景装饰层 -->
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+<div class="bg-grid"></div>
+
+<!-- ── Header ─────────────────────────────────────────── -->
 <header class="app-header">
   <div class="logo">
-    <span>🎯</span>
-    <span id="app-name">Dream Offer Matcher</span>
+    <div class="logo-mark">🎯</div>
+    <div>
+      <div class="logo-name"><span id="app-name">Dream Offer Matcher</span></div>
+      <div class="logo-sub">AI 岗位匹配分析</div>
+    </div>
   </div>
-  <div style="display:flex; align-items:center; gap:12px;">
-    <span id="engine-badge" class="engine-badge">⚙️ 本地算法</span>
+  <div class="header-right">
+    <span id="engine-badge" class="engine-badge">⚙ 本地算法</span>
+    <a href="https://jd-matcher-76vw.vercel.app/docs" target="_blank" class="header-link">文档 ↗</a>
   </div>
 </header>
 
-<!-- ── Main ──────────────────────────────────────────────── -->
-<div class="main-layout">
+<!-- ── Main ───────────────────────────────────────────── -->
+<main class="main-layout">
 
   <!-- 左栏：输入 -->
-  <div style="display:flex; flex-direction:column; gap:16px;">
+  <div class="input-col">
 
     <!-- JD 输入 -->
     <div class="card">
-      <div class="card-title accent">📋 粘贴 JD 描述</div>
-      <textarea id="jd-input"
-        placeholder="将职位描述（JD）粘贴到此处…
+      <div class="card-label">
+        <svg class="label-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        职位描述 JD
+      </div>
+      <textarea id="jd-input" placeholder="将职位描述（JD）粘贴到此处…
 
 例如：
 Senior Backend Engineer
 Requirements:
 - 3+ years of Go / Python experience
 - Familiar with Kubernetes, Docker
-- Experience with LLM / AI Agent preferred
+- LLM / AI Agent experience preferred
 - Bachelor's degree in CS or related field"></textarea>
     </div>
 
-    <!-- 简历来源 -->
+    <!-- 简历上传 -->
     <div class="card">
-      <div class="card-title">👤 简历来源</div>
-
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-        <span style="font-size:.85rem; color:var(--text-muted)">
-          请上传你的简历后开始匹配
+      <div class="card-label" style="justify-content:space-between">
+        <span style="display:flex;align-items:center;gap:8px">
+          <svg class="label-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          上传简历
         </span>
         <div id="resume-badge" class="resume-badge" style="display:none;"></div>
       </div>
 
-      <!-- 本地上传 -->
-      <label>上传本地简历（.json / .txt / .pdf）</label>
-      <div id="upload-zone" class="upload-zone">
+      <label id="upload-zone" class="upload-zone">
         <input id="file-input" type="file" accept=".json,.txt,.pdf,application/pdf"/>
-        <div>🗂 拖拽文件或点击上传</div>
-        <div style="font-size:.75rem; margin-top:4px; opacity:.6">支持 JSON、TXT 和 PDF 简历</div>
-      </div>
+        <div class="upload-arrow">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 16V8m0 0-3 3m3-3 3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 15v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="upload-text">拖拽文件到此处，或点击选择</div>
+        <div class="upload-formats">
+          <span>JSON</span><span>TXT</span><span>PDF</span>
+        </div>
+      </label>
     </div>
 
-    <!-- AI 增强设置（折叠） -->
+    <!-- AI 增强 -->
     <div class="card">
       <div id="collapse-header" class="collapse-header">
-        <span>🤖 AI 增强分析（可选）</span>
-        <i class="collapse-arrow">▾</i>
+        <div style="display:flex;align-items:center;gap:8px">
+          <svg class="label-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span style="font-size:.88rem;font-weight:600;color:var(--text)">AI 增强分析</span>
+          <span class="tag-optional">可选</span>
+        </div>
+        <span class="collapse-arrow">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
       </div>
       <div id="collapse-body" class="collapse-body">
-        <div style="padding-top:12px; display:flex; flex-direction:column; gap:10px;">
-          <label>
-            <input id="ai-toggle" type="checkbox" style="margin-right:6px; accent-color:var(--accent)"/>
-            启用 AI 增强分析
-          </label>
-          <div>
-            <label>API Key（Claude sk-ant-... 或 OpenAI sk-...）</label>
-            <input id="api-key" type="password" placeholder="粘贴 API Key"/>
-            <div style="font-size:.75rem; color:var(--text-muted); margin-top:4px;">
-              Key 只在本地使用，不会上传到任何服务器
+        <div class="collapse-inner">
+          <label class="ai-toggle-row">
+            <div class="toggle-switch">
+              <input id="ai-toggle" type="checkbox"/>
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
             </div>
+            <span>启用 AI 增强分析</span>
+          </label>
+          <div class="field">
+            <div class="field-label">API Key</div>
+            <input id="api-key" type="password" placeholder="sk-ant-… 或 sk-…"/>
+            <div class="field-hint">🔒 Key 仅在本地使用，不会上传到任何服务器</div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 操作按钮 -->
-    <div style="display:flex; gap:10px;">
-      <button id="match-btn" class="btn btn-primary" style="flex:1">
-        ⚡ 开始匹配
+    <div class="action-row">
+      <button id="match-btn" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 11l-3.7 2.5 1.4-4.3L2 6.5h4.5L8 2z" fill="currentColor"/></svg>
+        开始匹配
       </button>
-      <button id="reset-btn" class="btn btn-secondary">
-        ↺ 重置
+      <button id="reset-btn" class="btn btn-ghost">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 1 0 1-3H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 4v3h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        重置
       </button>
     </div>
 
@@ -99,16 +123,32 @@ Requirements:
 
   <!-- 右栏：结果 -->
   <div class="card result-panel">
-    <div class="card-title accent">📊 匹配分析报告</div>
+    <div class="card-label accent">
+      <svg class="label-icon" viewBox="0 0 16 16" fill="none"><path d="M2 14V8l6-6 6 6v6H9v-4H7v4H2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      匹配分析报告
+    </div>
     <div id="result-section">
       <div class="empty-state">
-        <div class="icon">🎯</div>
-        <p>粘贴 JD 文本后点击「开始匹配」<br/>即可看到多维度匹配分析报告</p>
+        <div class="empty-orb">
+          <div class="orb-ring r1"></div>
+          <div class="orb-ring r2"></div>
+          <div class="orb-ring r3"></div>
+          <div class="orb-core">🎯</div>
+        </div>
+        <div class="empty-title">准备好开始了吗？</div>
+        <div class="empty-desc">粘贴 JD 文本并上传简历<br/>获取多维度职位匹配分析</div>
+        <div class="empty-steps">
+          <div class="step"><span class="step-num">1</span>粘贴 JD 描述</div>
+          <div class="step-sep">→</div>
+          <div class="step"><span class="step-num">2</span>上传简历文件</div>
+          <div class="step-sep">→</div>
+          <div class="step"><span class="step-num">3</span>点击开始匹配</div>
+        </div>
       </div>
     </div>
   </div>
 
-</div>
+</main>
 
 <script type="module" src="app.js"></script>
 </body>
