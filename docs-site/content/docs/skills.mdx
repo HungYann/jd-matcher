@@ -1,146 +1,142 @@
 ---
-title: Skills
-description: jd-matcher 项目内置的两个 AI Skills：job-search 和 target-job-matcher。
+title: AI Skills
+description: jd-matcher 配套的两个 Claude Code Skill，覆盖求职全流程：职位发现 → 优先级排序 → 工具深度分析。
 ---
 
-# Skills
+# AI Skills
 
-项目内置两个面向求职场景的 Skills，存放在 `skills/` 目录。
+项目内置两个 Claude Code Skill，放在 `.claude/skills/` 目录下，在 Claude Code 中直接通过 `/` 命令调用。
 
 ---
 
 ## 目录结构
 
 ```
-skills/
+.claude/skills/
 ├── job-search/
-│   └── SKILL.md          ← 职位发现与筛选
+│   └── SKILL.md        ← 职位搜索与 JD 整理
 └── target-job-matcher/
-    └── SKILL.md          ← 多岗位排序与投递决策
+    └── SKILL.md        ← 多岗位匹配排名
 ```
 
 ---
 
 ## job-search
 
-**定位**：在用户还没有确定目标 JD 时使用，帮助从多个职位中筛选出值得分析的候选。
+**触发方式**：`/job-search` 或说「帮我找工作」「搜索职位」「整理 JD」
 
-**触发场景**：
-- 用户想搜索某类职位
-- 用户有多个 JD 链接，不知道该分析哪些
-- 用户需要从 JD 文本中提取结构化字段
+### 解决的问题
 
-**典型工作流**：
+用户还没有目标 JD，需要从招聘网站发现并筛选职位。
+
+### 工作流程
 
 ```
-1. 确认目标角色、市场、地区和必要条件
-2. 收集候选职位（招聘网站 / 公司官网 / 猎头消息）
-3. 过滤重复或信号弱的职位
-4. 将每个 JD 标准化为结构化格式
-5. 对比岗位，按预期匹配度排序
-6. 保留最优候选，导出 JD 文本供后续匹配
+1. 确认搜索条件（岗位名、城市、年限、必备技能）
+   ↓
+2. WebSearch 从 Boss直聘 / LinkedIn / 拉勾等搜集职位
+   ↓
+3. 去重 + 筛选低质量职位
+   ↓
+4. 标准化每个 JD（统一格式，兼容 parser.js）
+   ↓
+5. 输出投递优先级建议
 ```
 
-**输出格式**：
+### 输出示例
 
 ```markdown
-# Application Target Shortlist
+## 职位 1：后端工程师 @ 字节跳动
 
-## Role 1
-- Title: Senior Backend Engineer
-- Company: Example Inc.
-- Required Skills: Go, Distributed systems, PostgreSQL
-- Preferred Skills: LLM, RAG, Kubernetes
-- Clean JD: <标准化后的 JD 文本>
+- 地点：北京 / 远程
+- 经验要求：3年以上
+- 学历要求：本科
 
-## Recommendation
-- Best target: Role 1
-- Why: 核心后端技能高度匹配，经验差距最小
+### 必要技能
+- Go / Python
+- MySQL、Redis
+- Kubernetes
+
+### 标准化 JD（可直接粘贴进 JD Matcher）
+职位：后端工程师
+公司：字节跳动
+岗位要求：3年以上后端开发经验，精通 Go 或 Python...
+
+### 匹配预判
+适合度：高
+理由：技能栈高度重叠，经验年限满足要求
+```
+
+### Frontmatter
+
+```yaml
+name: job-search
+allowed-tools: WebSearch, WebFetch, Read, Write
 ```
 
 ---
 
 ## target-job-matcher
 
-**定位**：用户已有简历 + 多个目标 JD 时使用，输出投递优先级排序。
+**触发方式**：`/target-job-matcher` 或说「帮我分析哪个岗位最合适」「比较这几个 JD」
 
-**解决的问题**：给定一份简历和多个候选 JD，判断：
-- 哪些岗位最匹配，应该优先投
-- 哪些岗位有可管理的差距，值得尝试
-- 哪些岗位暂时不适合，建议延后
+### 解决的问题
 
-**典型工作流**：
+用户已有简历 + 多个目标 JD，需要判断哪些岗位最值得优先投递。
 
-```
-1. 收集简历 + 多个目标 JD
-2. 将每个 JD 标准化（title/required/preferred/exp/edu）
-3. 逐一与简历证据对比
-4. 按综合匹配度排序
-5. 说明每个岗位的最强匹配点和最大差距
-6. 给出应投顺序推荐
-```
+### 评分算法
 
-**输出格式**：
+与 JD Matcher 工具保持一致的三维权重：
+
+| 维度 | 权重 | 计算方式 |
+|------|------|---------|
+| 技能匹配 | 50% | 必要技能命中率 |
+| 经验匹配 | 30% | 实际年限 vs 要求年限 |
+| 学历匹配 | 20% | 学历是否满足最低要求 |
+
+### 输出示例
 
 ```markdown
-# Target Job Ranking
+# 目标岗位投递优先级
 
-## Rank 1
-- Title: Senior Backend Engineer
-- Company: Example Inc.
-- Fit: High
-- Apply Now: Yes
-- Why: Core backend stack, infra experience, and seniority all align well
-
-## Rank 2
-- Title: AI Engineer
-- Fit: Medium
-- Apply Now: Yes
-- Why: Strong LLM overlap, but production evaluation depth is less explicit
-
-## Rank 3
-- Title: Staff Data Engineer
-- Fit: Low
-- Apply Now: No
-- Why: Significant gap in staff-level leadership
+| 排名 | 职位 | 综合分 | 技能命中 | 建议 |
+|------|------|--------|---------|------|
+| 1 | 后端工程师@字节 | 85 | 8/10 | ✅ 立即投递 |
+| 2 | AI工程师@百度 | 72 | 6/10 | ✅ 值得尝试 |
+| 3 | 数据工程师@腾讯 | 45 | 3/10 | ⏳ 暂缓 |
 ```
 
----
-
-## Skills 与 JD Matcher 的协作关系
-
-```
-用户有多个候选 JD
-  │
-  ├─ 使用 job-search Skill ──► 筛选 + 标准化 JD
-  │
-  ├─ 使用 target-job-matcher ──► 排出投递优先级
-  │
-  └─ 将最优 JD 粘贴到 JD Matcher ──► 获取详细匹配分析
-```
-
----
-
-## 改进建议（Harness 合规性）
-
-当前 Skills 存在以下优化空间（详见 [Harness 审计](/docs/harness-audit)）：
-
-1. **路径问题**：Skills 目前在 `skills/` 目录，未放到 `.claude/commands/`，
-   Claude Code 不会自动扫描
-2. **触发词不足**：description 缺少中文关键词，中文对话无法自动触发
-3. **状态**：两个 Skills 当前为「文档模式」（documentation-only），
-   尚未实现自动化工作流
-
-**建议补充的中文触发词**：
+### Frontmatter
 
 ```yaml
-# job-search
-description: >
-  职位搜索与筛选。触发词：找工作、搜职位、职位筛选、JD 对比、
-  job search、find jobs、compare JD
+name: target-job-matcher
+allowed-tools: Read, Write
+```
 
-# target-job-matcher  
-description: >
-  多岗位匹配排序。触发词：哪个岗位最适合、投递优先级、岗位对比分析、
-  target job matcher、rank jobs、应该先投哪个
+---
+
+## 使用流程
+
+```
+没有目标 JD？
+  └─► /job-search → 搜集并整理 JD
+           ↓
+已有简历 + 多个 JD？
+  └─► /target-job-matcher → 排出优先顺序
+           ↓
+拿到最高优先级的 JD
+  └─► 粘贴进 JD Matcher 工具 → 获取完整雷达图分析
+```
+
+---
+
+## 安装方式
+
+Skills 已内置在仓库的 `.claude/skills/` 目录中，克隆仓库后在 Claude Code 里自动可用，无需额外安装。
+
+如需安装到个人全局环境（所有项目可用）：
+
+```bash
+cp -r .claude/skills/job-search ~/.claude/skills/
+cp -r .claude/skills/target-job-matcher ~/.claude/skills/
 ```
