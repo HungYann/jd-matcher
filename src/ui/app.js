@@ -33,6 +33,8 @@ const appName      = $('app-name');
 window.addEventListener('DOMContentLoaded', async () => {
   await initConfig();
   applySiteConfig();
+  // Trigger hero word-by-word animation
+  document.body.classList.add('loaded');
   subscribe(render);
 
   // 事件绑定

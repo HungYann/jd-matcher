@@ -4,152 +4,300 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dream Offer Matcher — 目标岗位匹配分析</title>
+
+  <!-- Fonts: Instrument Serif (italic heading) + Barlow (body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-<!-- 背景装饰层 -->
-<div class="bg-glow bg-glow-1"></div>
-<div class="bg-glow bg-glow-2"></div>
-<div class="bg-grid"></div>
+<!-- ══ CINEMATIC BACKGROUND ═══════════════════════════════════ -->
+<div class="bg-scene" aria-hidden="true">
+  <div class="nebula n1"></div>
+  <div class="nebula n2"></div>
+  <div class="nebula n3"></div>
+  <canvas id="stars-canvas"></canvas>
+</div>
 
-<!-- ── Header ─────────────────────────────────────────── -->
-<header class="app-header">
-  <div class="logo">
-    <div class="logo-mark">🎯</div>
-    <div>
-      <div class="logo-name"><span id="app-name">Dream Offer Matcher</span></div>
-      <div class="logo-sub">AI 岗位匹配分析</div>
+<!-- ══ NAVBAR ═════════════════════════════════════════════════ -->
+<nav class="glass-nav">
+  <div class="nav-logo liquid-glass">
+    <span class="font-serif-italic">dm</span>
+  </div>
+  <div class="nav-center liquid-glass">
+    <a href="#hero" class="nav-link">Home</a>
+    <a href="#tool" class="nav-link">Matcher</a>
+    <a href="https://jd-matcher-76vw.vercel.app/docs" target="_blank" class="nav-link">Docs</a>
+    <a href="https://jd-matcher-76vw.vercel.app/docs/skills" target="_blank" class="nav-link">Skills</a>
+    <a href="#tool" class="nav-cta">
+      Run Analysis
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+  </div>
+  <div class="nav-spacer"></div>
+</nav>
+
+<!-- ══ HERO SECTION ═══════════════════════════════════════════ -->
+<section id="hero" class="hero-section">
+
+  <div class="hero-body">
+
+    <!-- Badge -->
+    <div class="hero-badge liquid-glass fade-up" data-delay="0.35">
+      <span class="badge-new">New</span>
+      <span class="badge-label">AI + Local Algorithm · Multi-Dimensional Job Matching</span>
+    </div>
+
+    <!-- Headline (word-by-word blur animation) -->
+    <h1 class="hero-title" id="hero-title-words">
+      <!-- words injected by JS -->
+    </h1>
+
+    <!-- Subhead -->
+    <p class="hero-sub fade-up" data-delay="0.85">
+      Paste any job description. Upload your résumé.<br/>
+      Get a weighted match score with AI-powered insights.
+    </p>
+
+    <!-- CTAs -->
+    <div class="hero-ctas fade-up" data-delay="1.1">
+      <a href="#tool" class="btn-primary-glass liquid-glass-strong">
+        Begin Analysis
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+      </a>
+      <button class="btn-ghost-text" onclick="document.getElementById('tool').scrollIntoView({behavior:'smooth'})">
+        See How It Works
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+      </button>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="hero-stats fade-up" data-delay="1.3">
+      <div class="stat-card liquid-glass">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div class="stat-num">3×</div>
+        <div class="stat-sub">Scoring Dimensions</div>
+      </div>
+      <div class="stat-card liquid-glass">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20"/></svg>
+        <div class="stat-num">AI+</div>
+        <div class="stat-sub">Claude &amp; OpenAI</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Partners strip -->
+  <div class="partners-strip fade-up" data-delay="1.45">
+    <div class="partners-chip liquid-glass">Supports all major resume formats</div>
+    <div class="partners-row">
+      <span class="font-serif-italic">JSON</span>
+      <span class="sep">·</span>
+      <span class="font-serif-italic">TXT</span>
+      <span class="sep">·</span>
+      <span class="font-serif-italic">PDF</span>
+      <span class="sep">·</span>
+      <span class="font-serif-italic">Claude</span>
+      <span class="sep">·</span>
+      <span class="font-serif-italic">OpenAI</span>
     </div>
   </div>
-  <div class="header-right">
-    <span id="engine-badge" class="engine-badge">⚙ 本地算法</span>
-    <a href="https://jd-matcher-76vw.vercel.app/docs" target="_blank" class="header-link">文档 ↗</a>
+
+</section>
+
+<!-- ══ TOOL SECTION ════════════════════════════════════════════ -->
+<section id="tool" class="tool-section">
+
+  <div class="tool-header fade-up">
+    <div class="tool-kicker">// Analysis Engine</div>
+    <h2 class="tool-heading font-serif-italic">
+      Precision<br/>Matching
+    </h2>
   </div>
-</header>
 
-<!-- ── Main ───────────────────────────────────────────── -->
-<main class="main-layout">
+  <div class="tool-layout">
 
-  <!-- 左栏：输入 -->
-  <div class="input-col">
+    <!-- ── Left: Inputs ─────────────────────────────────────── -->
+    <div class="input-col">
 
-    <!-- JD 输入 -->
-    <div class="card">
-      <div class="card-label">
-        <svg class="label-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        职位描述 JD
+      <div class="engine-row">
+        <span id="engine-badge" class="engine-badge liquid-glass">⚙ 本地算法</span>
       </div>
-      <textarea id="jd-input" placeholder="将职位描述（JD）粘贴到此处…
 
-例如：
+      <!-- JD Input -->
+      <div class="glass-card">
+        <div class="card-label">
+          <svg class="label-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Job Description
+        </div>
+        <textarea id="jd-input" placeholder="Paste the job description (JD) here…
+
+e.g.
 Senior Backend Engineer
 Requirements:
-- 3+ years of Go / Python experience
-- Familiar with Kubernetes, Docker
-- LLM / AI Agent experience preferred
-- Bachelor's degree in CS or related field"></textarea>
-    </div>
-
-    <!-- 简历上传 -->
-    <div class="card">
-      <div class="card-label" style="justify-content:space-between">
-        <span style="display:flex;align-items:center;gap:8px">
-          <svg class="label-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          上传简历
-        </span>
-        <div id="resume-badge" class="resume-badge" style="display:none;"></div>
+- 3+ years Go / Python experience
+- Kubernetes, Docker
+- LLM / AI Agent preferred
+- Bachelor's in CS or related"></textarea>
       </div>
 
-      <label id="upload-zone" class="upload-zone">
-        <input id="file-input" type="file" accept=".json,.txt,.pdf,application/pdf"/>
-        <div class="upload-arrow">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 16V8m0 0-3 3m3-3 3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 15v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <!-- Resume -->
+      <div class="glass-card">
+        <div class="card-label" style="justify-content:space-between">
+          <span style="display:flex;align-items:center;gap:8px">
+            <svg class="label-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Résumé
+          </span>
+          <div id="resume-badge" class="resume-badge" style="display:none;"></div>
         </div>
-        <div class="upload-text">拖拽文件到此处，或点击选择</div>
-        <div class="upload-formats">
-          <span>JSON</span><span>TXT</span><span>PDF</span>
+        <div id="upload-zone" class="upload-zone">
+          <input id="file-input" type="file" accept=".json,.txt,.pdf,application/pdf"/>
+          <div class="upload-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V8m0 0-3 3m3-3 3 3"/><path d="M3 15v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/></svg>
+          </div>
+          <div class="upload-text">Drag &amp; drop, or click to select</div>
+          <div class="upload-chips">
+            <span>JSON</span><span>TXT</span><span>PDF</span>
+          </div>
         </div>
-      </label>
-    </div>
-
-    <!-- AI 增强 -->
-    <div class="card">
-      <div id="collapse-header" class="collapse-header">
-        <div style="display:flex;align-items:center;gap:8px">
-          <svg class="label-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span style="font-size:.88rem;font-weight:600;color:var(--text)">AI 增强分析</span>
-          <span class="tag-optional">可选</span>
-        </div>
-        <span class="collapse-arrow">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </span>
       </div>
-      <div id="collapse-body" class="collapse-body">
-        <div class="collapse-inner">
-          <label class="ai-toggle-row">
-            <div class="toggle-switch">
-              <input id="ai-toggle" type="checkbox"/>
-              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+
+      <!-- AI Settings -->
+      <div class="glass-card">
+        <div id="collapse-header" class="collapse-header">
+          <div style="display:flex;align-items:center;gap:9px">
+            <svg class="label-icon" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2zm0 2v4l3 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span class="collapse-title">AI Enhancement</span>
+            <span class="tag-opt">optional</span>
+          </div>
+          <span class="collapse-arrow">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+        <div id="collapse-body" class="collapse-body">
+          <div class="collapse-inner">
+            <label class="toggle-row">
+              <span class="toggle-wrap">
+                <input id="ai-toggle" type="checkbox"/>
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              </span>
+              <span>Enable AI-enhanced analysis</span>
+            </label>
+            <div class="field-group">
+              <div class="field-lbl">API Key</div>
+              <input id="api-key" type="password" placeholder="sk-ant-… or sk-…"/>
+              <div class="field-hint">🔒 Stays local — never sent to our servers</div>
             </div>
-            <span>启用 AI 增强分析</span>
-          </label>
-          <div class="field">
-            <div class="field-label">API Key</div>
-            <input id="api-key" type="password" placeholder="sk-ant-… 或 sk-…"/>
-            <div class="field-hint">🔒 Key 仅在本地使用，不会上传到任何服务器</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="action-row">
+        <button id="match-btn" class="btn-run liquid-glass-strong">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 11l-3.7 2.5 1.4-4.3L2 6.5h4.5L8 2z"/></svg>
+          Run Analysis
+        </button>
+        <button id="reset-btn" class="btn-outline">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 1 0 1-3H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 4v3h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Reset
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── Right: Results ──────────────────────────────────── -->
+    <div class="glass-card result-panel">
+      <div class="card-label accent">
+        <svg class="label-icon" viewBox="0 0 16 16" fill="none"><path d="M2 14V8l6-6 6 6v6H9v-4H7v4H2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        Analysis Report
+      </div>
+      <div id="result-section">
+        <div class="empty-state">
+          <div class="empty-orb">
+            <div class="orb-ring r1"></div>
+            <div class="orb-ring r2"></div>
+            <div class="orb-ring r3"></div>
+            <div class="orb-core">🎯</div>
+          </div>
+          <div class="empty-title font-serif-italic">Ready to Match?</div>
+          <div class="empty-desc">Paste a JD and upload your résumé<br/>for a full multi-dimensional analysis</div>
+          <div class="empty-steps">
+            <span class="e-step"><span class="e-num">1</span>Paste JD</span>
+            <span class="e-arr">→</span>
+            <span class="e-step"><span class="e-num">2</span>Upload Résumé</span>
+            <span class="e-arr">→</span>
+            <span class="e-step"><span class="e-num">3</span>Run Analysis</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 操作按钮 -->
-    <div class="action-row">
-      <button id="match-btn" class="btn btn-primary">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 4.5H14l-3.7 2.7 1.4 4.3L8 11l-3.7 2.5 1.4-4.3L2 6.5h4.5L8 2z" fill="currentColor"/></svg>
-        开始匹配
-      </button>
-      <button id="reset-btn" class="btn btn-ghost">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 1 0 1-3H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 4v3h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        重置
-      </button>
-    </div>
-
   </div>
+</section>
 
-  <!-- 右栏：结果 -->
-  <div class="card result-panel">
-    <div class="card-label accent">
-      <svg class="label-icon" viewBox="0 0 16 16" fill="none"><path d="M2 14V8l6-6 6 6v6H9v-4H7v4H2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-      匹配分析报告
-    </div>
-    <div id="result-section">
-      <div class="empty-state">
-        <div class="empty-orb">
-          <div class="orb-ring r1"></div>
-          <div class="orb-ring r2"></div>
-          <div class="orb-ring r3"></div>
-          <div class="orb-core">🎯</div>
-        </div>
-        <div class="empty-title">准备好开始了吗？</div>
-        <div class="empty-desc">粘贴 JD 文本并上传简历<br/>获取多维度职位匹配分析</div>
-        <div class="empty-steps">
-          <div class="step"><span class="step-num">1</span>粘贴 JD 描述</div>
-          <div class="step-sep">→</div>
-          <div class="step"><span class="step-num">2</span>上传简历文件</div>
-          <div class="step-sep">→</div>
-          <div class="step"><span class="step-num">3</span>点击开始匹配</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</main>
+<!-- ── Hidden app-name for config ── -->
+<span id="app-name" style="display:none">Dream Offer Matcher</span>
 
 <script type="module" src="app.js"></script>
+
+<script>
+/* ── Starfield canvas ── */
+(function(){
+  const c = document.getElementById('stars-canvas');
+  const ctx = c.getContext('2d');
+  let W, H, stars;
+  function resize(){ W = c.width = innerWidth; H = c.height = innerHeight; }
+  function gen(){
+    stars = Array.from({length:140}, ()=>({
+      x: Math.random()*W, y: Math.random()*H,
+      r: Math.random()*1.1+0.15,
+      o: Math.random()*0.5+0.15,
+      sp: Math.random()*0.004+0.001,
+      d: Math.random()>.5?1:-1
+    }));
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(const s of stars){
+      s.o += s.sp * s.d;
+      if(s.o>0.7||s.o<0.1) s.d*=-1;
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${s.o})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  resize(); gen(); draw();
+  window.addEventListener('resize',()=>{ resize(); gen(); });
+})();
+
+/* ── Word-by-word hero title animation ── */
+(function(){
+  const words = "Match Your Dream Offer".split(' ');
+  const el = document.getElementById('hero-title-words');
+  if(!el) return;
+  el.innerHTML = words.map((w,i)=>`<span class="title-word" style="animation-delay:${0.4 + i*0.12}s">${w}</span>`).join('');
+})();
+
+/* ── Fade-up on scroll ── */
+(function(){
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const d = parseFloat(e.target.dataset.delay||0);
+        setTimeout(()=>e.target.classList.add('visible'), d*1000);
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.1});
+  document.querySelectorAll('.fade-up').forEach(el=>io.observe(el));
+})();
+</script>
 </body>
 </html>
