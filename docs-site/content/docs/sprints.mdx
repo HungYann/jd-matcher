@@ -14,18 +14,18 @@ description: jd-matcher 全部 8 个 Sprint 的目标、实现方案与验收记
 
 | Sprint | Goal | Layer | 状态 |
 |--------|------|-------|------|
-| [S1](#s1) | 数据结构定义 | `types` | ✅ 完成 |
-| [S2](#s2) | 配置与权重 | `config` | ✅ 完成 |
-| [S3](#s3) | 简历数据仓库 | `repo` | ✅ 完成 |
-| [S4](#s4) | JD 解析器 | `service/parser` | ✅ 完成 |
-| [S5](#s5) | 本地匹配算法 | `service/matcher` | ✅ 完成 |
-| [S6](#s6) | AI 增强匹配 | `service/ai` | ✅ 完成 |
-| [S7](#s7) | 状态管理 | `runtime` | ✅ 完成 |
-| [S8](#s8) | UI 主界面 | `ui` | ✅ 完成 |
+| S1 | 数据结构定义 | `types` | ✅ 完成 |
+| S2 | 配置与权重 | `config` | ✅ 完成 |
+| S3 | 简历数据仓库 | `repo` | ✅ 完成 |
+| S4 | JD 解析器 | `service/parser` | ✅ 完成 |
+| S5 | 本地匹配算法 | `service/matcher` | ✅ 完成 |
+| S6 | AI 增强匹配 | `service/ai` | ✅ 完成 |
+| S7 | 状态管理 | `runtime` | ✅ 完成 |
+| S8 | UI 主界面 | `ui` | ✅ 完成 |
 
 ---
 
-## S1 — 数据结构定义 {#s1}
+## S1 — 数据结构定义
 
 ```yaml
 goal:       定义项目所有核心数据类型
@@ -48,7 +48,7 @@ blocked_by: none
 
 ---
 
-## S2 — 配置与权重 {#s2}
+## S2 — 配置与权重
 
 ```yaml
 goal:       定义匹配权重、词库、学历映射和 .env 加载逻辑
@@ -72,7 +72,7 @@ blocked_by: S1
 
 ---
 
-## S3 — 简历数据仓库 {#s3}
+## S3 — 简历数据仓库
 
 ```yaml
 goal:       实现简历的本地文件读取和可选远程 URL 加载
@@ -98,7 +98,7 @@ blocked_by: S2
 
 ---
 
-## S4 — JD 解析器 {#s4}
+## S4 — JD 解析器
 
 ```yaml
 goal:       从 JD 原始文本提取结构化字段
@@ -123,7 +123,7 @@ blocked_by: S2
 
 ---
 
-## S5 — 本地匹配算法 {#s5}
+## S5 — 本地匹配算法
 
 ```yaml
 goal:       实现三维加权匹配评分，产出完整 MatchResult
@@ -140,7 +140,7 @@ blocked_by: S2, S4
 
 ---
 
-## S6 — AI 增强匹配 {#s6}
+## S6 — AI 增强匹配
 
 ```yaml
 goal:       调用 Claude / OpenAI 补充主观分析，失败自动 fallback
@@ -162,7 +162,7 @@ const provider = apiKey.startsWith('sk-ant') ? 'claude' : 'openai';
 
 ---
 
-## S7 — 状态管理 {#s7}
+## S7 — 状态管理
 
 ```yaml
 goal:       实现轻量响应式 store，UI 通过 subscribe 监听变化
@@ -179,7 +179,7 @@ blocked_by: S3, S4, S5, S6
 
 ---
 
-## S8 — UI 主界面 {#s8}
+## S8 — UI 主界面
 
 ```yaml
 goal:       实现完整的单页应用界面
