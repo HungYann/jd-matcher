@@ -331,6 +331,35 @@ textarea {
 textarea::placeholder { color: rgba(255,255,255,.2); }
 textarea:focus { border-color: rgba(139,124,248,.5); box-shadow: 0 0 0 3px rgba(139,124,248,.1); }
 
+/* Sample JD Chips */
+.sample-label {
+  font-size: .72rem; font-weight: 500; color: var(--subtle);
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.sample-chips {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+.sample-chip {
+  font-family: 'Barlow', sans-serif;
+  font-size: .73rem; font-weight: 500;
+  padding: 4px 13px; border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: var(--muted); cursor: pointer;
+  transition: all .18s ease; white-space: nowrap;
+}
+.sample-chip:hover {
+  border-color: rgba(139,124,248,.5);
+  background: rgba(139,124,248,.1);
+  color: var(--text);
+}
+.sample-chip.active {
+  border-color: rgba(139,124,248,.7);
+  background: rgba(139,124,248,.18);
+  color: var(--accent);
+  box-shadow: 0 0 8px rgba(139,124,248,.25);
+}
+
 /* Upload Zone */
 .upload-zone {
   display: flex; flex-direction: column; align-items: center;

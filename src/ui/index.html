@@ -130,10 +130,22 @@
 
       <!-- JD Input -->
       <div class="glass-card">
-        <div class="card-label">
-          <svg class="label-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-          Job Description
+        <div class="card-label" style="justify-content:space-between">
+          <span style="display:flex;align-items:center;gap:8px">
+            <svg class="label-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Job Description
+          </span>
+          <span class="sample-label">示例 JD</span>
         </div>
+
+        <!-- Sample JD chips -->
+        <div class="sample-chips">
+          <button class="sample-chip" data-jd="frontend">前端工程师</button>
+          <button class="sample-chip" data-jd="backend">后端工程师</button>
+          <button class="sample-chip" data-jd="ai">AI 算法</button>
+          <button class="sample-chip" data-jd="devops">DevOps</button>
+        </div>
+
         <textarea id="jd-input" placeholder="Paste the job description (JD) here…
 
 e.g.
@@ -297,6 +309,97 @@ Requirements:
     });
   }, {threshold:0.1});
   document.querySelectorAll('.fade-up').forEach(el=>io.observe(el));
+})();
+
+/* ── Sample JDs ── */
+const SAMPLE_JDS = {
+  frontend: `职位：前端工程师
+公司：字节跳动
+
+岗位要求：
+- 3年以上前端开发经验
+- 精通 React，熟悉 React Hooks、状态管理（Redux / Zustand）
+- 熟悉 TypeScript，能编写类型安全代码
+- 熟悉 Webpack / Vite 构建工具
+- 了解 Node.js，有 BFF 经验者优先
+- 本科及以上学历，计算机相关专业
+
+加分项：
+- 有 Next.js / SSR 经验
+- 了解性能优化（LCP、FID、CLS）
+- 有开源项目贡献`,
+
+  backend: `职位：Java 后端工程师
+公司：阿里巴巴
+
+岗位职责：
+负责电商核心交易系统的开发与维护
+
+任职要求：
+- 5年以上 Java 开发经验
+- 精通 Spring Boot、Spring Cloud 微服务架构
+- 熟悉 MySQL，有分库分表经验
+- 熟悉 Redis 缓存设计，了解 Kafka 消息队列
+- 熟悉 Docker / Kubernetes 容器化部署
+- 本科以上学历
+
+优先条件：
+- 有高并发、大流量系统设计经验
+- 了解 Elasticsearch
+- 有 DDD 领域驱动设计实践`,
+
+  ai: `职位：算法工程师（NLP 方向）
+公司：百度
+
+任职要求：
+- 硕士及以上学历，计算机 / 人工智能相关专业
+- 2年以上 NLP 相关工作经验
+- 熟悉 Python，掌握 PyTorch / TensorFlow
+- 有 LLM 微调经验（LoRA / SFT / RLHF）
+- 了解 RAG、向量数据库（Faiss / Milvus）
+- 有 LangChain 使用经验
+
+加分：
+- 有大模型预训练经验
+- 发表过 ACL / EMNLP 等顶会论文
+- 了解 vLLM / TensorRT 推理加速`,
+
+  devops: `职位：DevOps / SRE 工程师
+公司：腾讯云
+
+岗位要求：
+- 3年以上运维或 DevOps 经验
+- 精通 Kubernetes、Docker，有生产集群管理经验
+- 熟悉 CI/CD 工具链（Jenkins / GitLab CI / ArgoCD）
+- 熟悉 Terraform 或其他 IaC 工具
+- 熟悉 Prometheus + Grafana 监控体系
+- 有 Linux 系统调优经验
+- 本科以上学历
+
+加分项：
+- AWS / GCP / 阿里云认证
+- 有 Go 或 Python 编写运维工具经验
+- 了解混沌工程`
+};
+
+(function(){
+  document.querySelectorAll('.sample-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.jd;
+      const text = SAMPLE_JDS[key];
+      if (!text) return;
+
+      const ta = document.getElementById('jd-input');
+      ta.value = text;
+      // trigger the store's input listener
+      ta.dispatchEvent(new Event('input'));
+      // visual feedback
+      document.querySelectorAll('.sample-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // scroll textarea into view
+      ta.scrollTop = 0;
+    });
+  });
 })();
 </script>
 </body>
