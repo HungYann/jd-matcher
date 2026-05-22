@@ -22,7 +22,6 @@ const uploadZone   = $('upload-zone');
 const apiKeyInput  = $('api-key');
 const aiToggle     = $('ai-toggle');
 const resultSection= $('result-section');
-const engineBadge  = $('engine-badge');
 const collapseHdr  = $('collapse-header');
 const collapseBody = $('collapse-body');
 const resumeBadge  = $('resume-badge');
@@ -114,11 +113,6 @@ function render(state) {
   matchBtn.innerHTML = busy
     ? '<span class="spinner"></span> 计算中…'
     : '⚡ 开始匹配';
-
-  // Engine 徽章
-  const isAI = state.engineMode === 'ai' && state.apiKey;
-  engineBadge.textContent = isAI ? '🤖 AI 增强' : '⚙️ 本地算法';
-  engineBadge.className   = 'engine-badge' + (isAI ? ' ai' : '');
 
   // 简历来源徽章
   if (state.resumeSource) {
