@@ -5,12 +5,7 @@
     "harness-audit",
     "architecture",
     "sprints",
-    {
-      "type": "folder",
-      "name": "模块文档",
-      "root": "modules",
-      "pages": ["..."]
-    },
+    "modules",
     "skills",
     "configuration",
     "dev-guide"
