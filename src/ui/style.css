@@ -169,7 +169,14 @@ body.loaded .title-word { animation-play-state: running; }
   white-space: nowrap; transition: opacity .2s;
 }
 .nav-cta:hover { opacity: .88; }
-.nav-spacer { width: 48px; flex-shrink: 0; }
+.nav-github {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); flex-shrink: 0;
+  transition: color .2s, background .2s;
+  text-decoration: none;
+}
+.nav-github:hover { color: white; background: rgba(255,255,255,.1); }
 
 @media (max-width: 820px) {
   .nav-center { display: none; }
