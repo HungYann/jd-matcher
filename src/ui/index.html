@@ -402,6 +402,11 @@ Requirements:
       <button class="sample-chip" data-rcat="nomad">🏕️ 游民社区</button>
     </div>
 
+    <!-- Category description bar (JS-controlled) -->
+    <div class="remote-cat-desc" id="remote-cat-desc" hidden>
+      <span id="remote-cat-text"></span>
+    </div>
+
     <!-- Platform Grid -->
     <div class="platform-grid">
 
@@ -661,6 +666,10 @@ Requirements:
       </article>
 
       <!-- ── 游民社区 ─────────────────────────── -->
+      <div class="grid-section-label" id="grid-nomad-label">
+        <span>🏕️ 游民社区据点</span>
+        <span class="grid-section-sub">全国共居共创空间，可按月入住</span>
+      </div>
       <article class="platform-card glass-card" data-rcat="nomad">
         <div class="platform-card-top"><span class="platform-icon">🏔️</span><strong class="platform-name">大理·NCC</strong></div>
         <div class="platform-tag-row"><span class="platform-tag">云南·大理</span><span class="platform-tag tag-open">营业中</span><span class="platform-tag">山景·避暑</span></div>
@@ -1562,16 +1571,46 @@ const SAMPLE_JDS = {
 <!-- Remote Work Hub — filter tabs -->
 <script>
 (function () {
-  const tabs  = document.querySelectorAll('.remote-filter-row .sample-chip');
-  const cards = document.querySelectorAll('.platform-card');
-  const counts = { all: cards.length };
+  const tabs      = document.querySelectorAll('.remote-filter-row .sample-chip');
+  const cards     = document.querySelectorAll('.platform-card');
+  const catDesc   = document.getElementById('remote-cat-desc');
+  const catText   = document.getElementById('remote-cat-text');
+  const nomadLabel = document.getElementById('grid-nomad-label');
+  const counts    = { all: cards.length };
   cards.forEach(c => { counts[c.dataset.rcat] = (counts[c.dataset.rcat] || 0) + 1; });
+
+  const descMap = {
+    global:   '🌐 全球远程招聘平台 — 找到不受地点限制的海外岗位',
+    cn:       '🇨🇳 国内远程求职 — 电鸭、Web3、外企远程岗聚合',
+    freelance:'💼 自由职业市场 — 接项目、做外包、建立个人客户群',
+    nomad:    '🏕️ 数字游民共居据点 — 全国 30+ 个可按月入住的共创空间，含价格 / 房型 / 位置信息'
+  };
+
+  /* 动态注入 tab 数量角标 */
+  tabs.forEach(btn => {
+    const n = counts[btn.dataset.rcat] || 0;
+    if (n > 0) btn.insertAdjacentHTML('beforeend', `<span class="tab-count">${n}</span>`);
+  });
+
   tabs.forEach(btn => {
     btn.addEventListener('click', () => {
       tabs.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const cat = btn.dataset.rcat;
+
+      /* 卡片过滤 */
       cards.forEach(c => c.classList.toggle('hidden', cat !== 'all' && c.dataset.rcat !== cat));
+
+      /* 类别说明行 */
+      if (cat === 'all') {
+        catDesc.hidden = true;
+      } else {
+        catText.textContent = descMap[cat] || '';
+        catDesc.hidden = false;
+      }
+
+      /* 游民社区分隔标题：仅"全部"时显示 */
+      if (nomadLabel) nomadLabel.classList.toggle('hidden', cat !== 'all');
     });
   });
 })();

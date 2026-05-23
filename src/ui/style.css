@@ -1137,3 +1137,42 @@ hr { border: none; border-top: 1px solid rgba(255,255,255,.06); margin: 20px 0; 
   color: var(--warn);
   border-color: rgba(245,158,11,.22);
 }
+
+/* ── Tab count badge ─────────────────────────────────────────── */
+.tab-count {
+  display: inline-block;
+  font-size: .6rem; font-weight: 600;
+  background: rgba(255,255,255,.12);
+  color: var(--muted);
+  padding: 0 5px; border-radius: 999px;
+  margin-left: 4px; vertical-align: middle;
+  line-height: 1.65;
+}
+.sample-chip.active .tab-count {
+  background: rgba(139,124,248,.2);
+  color: var(--accent);
+}
+
+/* ── Category description bar ───────────────────────────────── */
+.remote-cat-desc {
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(139,124,248,.06);
+  border: 1px solid rgba(139,124,248,.14);
+  font-size: .82rem; color: var(--muted);
+  line-height: 1.55;
+}
+.remote-cat-desc[hidden] { display: none; }
+
+/* ── In-grid section divider (游民社区 in 全部 view) ─────────── */
+.grid-section-label {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 0 4px;
+  border-top: 1px solid var(--border);
+  font-size: .82rem; font-weight: 600; color: var(--accent);
+}
+.grid-section-label.hidden { display: none; }
+.grid-section-sub {
+  font-weight: 300; color: var(--muted); font-size: .78rem;
+}
