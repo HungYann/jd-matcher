@@ -373,8 +373,10 @@ Requirements:
   <div id="harny-bubble" class="harny-bubble" role="status" style="display:none">
     <p id="harny-msg" class="harny-msg"></p>
     <div class="harny-actions" id="harny-actions" style="display:none">
-      <button id="harny-start" class="harny-btn-primary">开始 →</button>
-      <button id="harny-skip"  class="harny-btn-skip">跳过</button>
+      <button id="harny-start"   class="harny-btn-primary" data-set="onboard">开始 →</button>
+      <button id="harny-restart" class="harny-btn-primary" data-set="done" style="display:none">📖 重新引导</button>
+      <button id="harny-skip"    class="harny-btn-skip"    data-set="onboard">跳过</button>
+      <button id="harny-close"   class="harny-btn-skip"    data-set="done" style="display:none">关闭</button>
     </div>
   </div>
 
@@ -721,6 +723,12 @@ const SAMPLE_JDS = {
   const DONE_KEY = 'harny_done';
   const PET_KEY  = 'harny_pets';
 
+  // URL param ?harny=reset → clear stored state for testing
+  if (new URLSearchParams(location.search).get('harny') === 'reset') {
+    localStorage.removeItem(DONE_KEY);
+    localStorage.removeItem(PET_KEY);
+  }
+
   // DOM refs
   const widget = document.getElementById('harny-widget');
   const bubble = document.getElementById('harny-bubble');
@@ -735,7 +743,6 @@ const SAMPLE_JDS = {
   let scoreShownAt   = 0;
   let bubbleTtlTimer = null;
   let minimizeTimer  = null;
-  let recentlyAcked  = false; // suppresses chain reactions
 
   /* ── pet/idle voice lines ───────────────────────────── */
   const PETS = [
@@ -757,9 +764,19 @@ const SAMPLE_JDS = {
     setTimeout(() => widget.classList.remove('harny--' + cls), ms);
   }
 
-  function showBubble(html, withActions = false, ttl = 0) {
+  // mode: false|'none' = no buttons; true|'onboard' = start+skip; 'done' = restart+close
+  function showBubble(html, mode = false, ttl = 0) {
     msgEl.innerHTML = html;
-    actEl.style.display = withActions ? 'flex' : 'none';
+
+    // Normalize boolean shortcut
+    const set = mode === true ? 'onboard' : (mode === false ? 'none' : mode);
+
+    // Toggle button visibility based on data-set attribute
+    actEl.querySelectorAll('button').forEach(b => {
+      b.style.display = (b.dataset.set === set) ? '' : 'none';
+    });
+    actEl.style.display = (set === 'none') ? 'none' : 'flex';
+
     bubble.style.display = '';
     // re-trigger entrance animation
     bubble.style.animation = 'none';
@@ -825,11 +842,11 @@ const SAMPLE_JDS = {
           '上传简历就可以开始啦 📄',
           '点「<b>开始匹配</b>」就能看到结果啦 ⚡',
         ];
-        showBubble(msgs[step], step === 0);
+        showBubble(msgs[step], step === 0 ? 'onboard' : 'none');
         return;
       }
-      // Done state - friendly greeting first time after expand
-      showBubble('又见面啦 🐾<br>需要我做点什么？', false, 2500);
+      // Done state - greeting + restart button
+      showBubble('又见面啦 🐾<br>需要我做点什么？', 'done');
       return;
     }
 
@@ -843,7 +860,7 @@ const SAMPLE_JDS = {
     else if (petCount === 50) msg = `🏆 传说级铲屎官！${petCount} 次！`;
     else if (petCount === 100) msg = `💯 一百次了你是不是闲？(开玩笑 爱你❤️)`;
     else msg = pick(PETS);
-    showBubble(msg, false, 2800);
+    showBubble(msg, 'none', 2800);
     flash('pet', 650);
   });
 
@@ -852,15 +869,46 @@ const SAMPLE_JDS = {
     step = 1;
     setExpr('excited');
     setTimeout(() => setExpr(''), 1400);
-    showBubble('不错！现在把 JD 粘贴进来吧 📋<br><small>支持任何招聘网站的职位描述</small>', false);
+    showBubble('不错！现在把 JD 粘贴进来吧 📋<br><small>支持任何招聘网站的职位描述</small>', 'none');
     const jdEl = document.getElementById('jd-input');
     if (jdEl) jdEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
   /* ── "跳过" button ─────────────────────────────────── */
   document.getElementById('harny-skip').addEventListener('click', () => {
-    showBubble('好的，需要时点我就好 🐾', false, 2200);
+    showBubble('好的，需要时点我就好 🐾', 'none', 2200);
     setTimeout(() => minimize(true), 2200);
+  });
+
+  /* ── "重新引导" button (done-state) ─────────────────── */
+  document.getElementById('harny-restart').addEventListener('click', () => {
+    localStorage.removeItem(DONE_KEY);
+    if (minimizeTimer) clearTimeout(minimizeTimer);
+    setExpr('excited');
+    setTimeout(() => setExpr(''), 1200);
+
+    // Smart restart: skip ahead based on what's already filled
+    const jd = document.getElementById('jd-input');
+    const bg = document.getElementById('resume-badge');
+    const jdLen     = jd ? jd.value.trim().length : 0;
+    const hasResume = bg && bg.style.display !== 'none' && bg.textContent.trim();
+
+    if (jdLen < 15) {
+      step = 1;
+      showBubble('好！我们重新开始 🐾<br>先把 JD 粘贴进去吧 📋', 'none');
+      if (jd) jd.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (!hasResume) {
+      step = 2;
+      showBubble('JD 已经有了 ✅<br>接下来上传你的简历吧 📄', 'none');
+    } else {
+      step = 3;
+      showBubble('JD 和简历都准备好了 🎯<br>点「<b>开始匹配</b>」吧！', 'none');
+    }
+  });
+
+  /* ── "关闭" button (done-state) ────────────────────── */
+  document.getElementById('harny-close').addEventListener('click', () => {
+    minimize(false);
   });
 
   /* ── step 1 → 2: JD filled ────────────────────────── */
