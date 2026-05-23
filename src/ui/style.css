@@ -1126,85 +1126,14 @@ hr { border: none; border-top: 1px solid rgba(255,255,255,.06); margin: 20px 0; 
   font-size: .82rem;
 }
 
-/* ══ 游民社区 Section ════════════════════════════════════════════ */
-.nomad-section {
-  position: relative; z-index: 2;
-  padding: 60px 32px 100px;
-  max-width: 1200px; margin: 0 auto;
+/* ── Status tag variants (游民社区 tab) ───────────────────────── */
+.platform-tag.tag-open {
+  background: rgba(16,217,144,.08);
+  color: var(--success);
+  border-color: rgba(16,217,144,.22);
 }
-.nomad-inner { display: flex; flex-direction: column; gap: 28px; }
-
-/* Stats strip */
-.nomad-stats {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-}
-.nomad-stat {
-  padding: 18px 20px; border-radius: 14px; text-align: center;
-  display: flex; flex-direction: column; gap: 4px;
-}
-.nomad-snum {
-  font-family: 'Instrument Serif', serif; font-style: italic;
-  font-size: 1.6rem; font-weight: 400; color: var(--accent2);
-  line-height: 1;
-}
-.nomad-ssub {
-  font-size: .72rem; font-weight: 400; color: var(--muted);
-}
-
-/* Cards grid — 4 cols, compact cards */
-.nomad-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-@media (max-width: 1100px) { .nomad-grid { grid-template-columns: repeat(3,1fr); } }
-@media (max-width: 760px)  { .nomad-grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 480px)  { .nomad-grid { grid-template-columns: 1fr; } }
-
-/* Nomad card */
-.nomad-card {
-  display: flex; flex-direction: column; gap: 8px;
-  padding: 14px 16px; border-radius: 14px;
-  transition: transform .22s ease, border-color .2s;
-}
-.nomad-card:hover { transform: translateY(-4px); border-color: var(--border-hi); }
-.nomad-card.hidden { display: none !important; }
-
-.nomad-card-top {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; gap: 6px;
-}
-.nomad-name {
-  font-size: .88rem; font-weight: 600; color: var(--text); line-height: 1.3;
-}
-.nomad-status {
-  font-family: 'Barlow', sans-serif;
-  font-size: .6rem; font-weight: 700;
-  padding: 2px 7px; border-radius: 999px;
-  white-space: nowrap; flex-shrink: 0;
-}
-.nomad-status.open {
-  background: rgba(16,217,144,.1); color: var(--success);
-  border: 1px solid rgba(16,217,144,.22);
-}
-.nomad-status.beta {
-  background: rgba(245,158,11,.1); color: var(--warn);
-  border: 1px solid rgba(245,158,11,.22);
-}
-.nomad-location {
-  font-size: .72rem; color: var(--subtle); margin: 0;
-}
-.nomad-meta {
-  display: flex; flex-direction: column; gap: 3px; flex: 1;
-}
-.nomad-price {
-  font-size: .74rem; color: var(--accent2); font-weight: 500;
-}
-.nomad-rooms {
-  font-size: .7rem; color: var(--subtle); line-height: 1.5;
-}
-
-@media (max-width: 560px) {
-  .nomad-section { padding: 40px 16px 80px; }
-  .nomad-stats { grid-template-columns: repeat(3,1fr); }
+.platform-tag.tag-beta {
+  background: rgba(245,158,11,.08);
+  color: var(--warn);
+  border-color: rgba(245,158,11,.22);
 }
