@@ -719,6 +719,7 @@ const SAMPLE_JDS = {
 (function () {
   'use strict';
   const DONE_KEY = 'harny_done';
+  const PET_KEY  = 'harny_pets';
 
   // DOM refs
   const widget = document.getElementById('harny-widget');
@@ -727,16 +728,36 @@ const SAMPLE_JDS = {
   const actEl  = document.getElementById('harny-actions');
   const iconEl = document.getElementById('harny-icon');
 
-  // -1 = never shown; 0-3 = onboarding steps; 4 = finished
+  // -1=hidden, 0=welcome, 1=paste_jd, 2=upload_resume, 3=run, 4=done
   let step = -1;
+  let petCount = parseInt(localStorage.getItem(PET_KEY) || '0', 10);
+  let lastShownScore = null;
+  let scoreShownAt   = 0;
+  let bubbleTtlTimer = null;
+  let minimizeTimer  = null;
+  let recentlyAcked  = false; // suppresses chain reactions
+
+  /* ── pet/idle voice lines ───────────────────────────── */
+  const PETS = [
+    '汪! 🐾', '嘿嘿被摸到了～', '咕噜咕噜…',
+    '再多陪陪我嘛 🥺', '今天也要加油哦！✨',
+    '面试加油呀 🍀', 'Offer 飞来！📩',
+    '你的手好温暖呀～', '🦴 谢谢你的关注',
+    '工作找得顺利吗？', '我也要努力变可爱！',
+  ];
 
   /* ── helpers ───────────────────────────────────────── */
   function setExpr(expr) {
-    widget.classList.remove('harny--happy', 'harny--sad', 'harny--analyzing');
+    widget.classList.remove('harny--happy','harny--sad','harny--analyzing','harny--excited');
     if (expr) widget.classList.add('harny--' + expr);
   }
 
-  function showBubble(html, withActions) {
+  function flash(cls, ms = 700) {
+    widget.classList.add('harny--' + cls);
+    setTimeout(() => widget.classList.remove('harny--' + cls), ms);
+  }
+
+  function showBubble(html, withActions = false, ttl = 0) {
     msgEl.innerHTML = html;
     actEl.style.display = withActions ? 'flex' : 'none';
     bubble.style.display = '';
@@ -744,18 +765,40 @@ const SAMPLE_JDS = {
     bubble.style.animation = 'none';
     void bubble.offsetWidth;
     bubble.style.animation = '';
+    if (bubbleTtlTimer) clearTimeout(bubbleTtlTimer);
+    if (ttl > 0) {
+      bubbleTtlTimer = setTimeout(() => {
+        if (bubble.style.display !== 'none') hideBubble();
+      }, ttl);
+    }
   }
-
   function hideBubble() { bubble.style.display = 'none'; }
 
   function minimize(markDone) {
     widget.classList.add('harny--minimized');
+    setExpr('');
     if (markDone) { localStorage.setItem(DONE_KEY, '1'); step = 4; }
   }
 
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function dingDone() { recentlyAcked = true; setTimeout(() => recentlyAcked = false, 800); }
+
+  /* ── random idle micro-animations (head-tilt / ear-twitch) ── */
+  setInterval(() => {
+    if (!widget.classList.contains('harny--visible')) return;
+    // suppress while in active emotion state
+    if (widget.classList.contains('harny--analyzing')) return;
+    if (widget.classList.contains('harny--happy'))     return;
+    if (widget.classList.contains('harny--sad'))       return;
+    // 35% chance to do something every tick
+    if (Math.random() < 0.35) {
+      flash(Math.random() < 0.5 ? 'tilt' : 'twitch', 900);
+    }
+  }, 11000);
+
   /* ── boot ──────────────────────────────────────────── */
   if (localStorage.getItem(DONE_KEY)) {
-    // Already completed – show as minimized icon only
     widget.classList.add('harny--visible', 'harny--minimized');
     step = 4;
   } else {
@@ -769,35 +812,56 @@ const SAMPLE_JDS = {
     }, 1500);
   }
 
-  /* ── icon click: toggle bubble ─────────────────────── */
+  /* ── icon click: toggle / pet ───────────────────────── */
   iconEl.addEventListener('click', () => {
+    // Expand from minimized
     if (widget.classList.contains('harny--minimized')) {
       widget.classList.remove('harny--minimized');
       setExpr('');
       if (step >= 0 && step <= 3) {
         const msgs = [
-          '你好！我是 Harny 🐾<br>帮你找到最匹配的工作！<br>先把 JD 粘贴进去试试？',
-          '不错！现在把 JD 粘贴进来吧 📋<br>支持复制粘贴任何职位描述',
-          '很棒！JD 已准备好 ✅<br>接下来上传你的简历吧<br><small>支持 JSON / TXT / PDF</small>',
-          '简历上传成功 🎉<br>点击「<b>开始匹配</b>」<br>看看你和这份工作有多配 ⚡',
+          '你好！我是 Harny 🐾<br>需要我帮你引导吗？',
+          '继续呀～把 JD 粘贴进来吧 📋',
+          '上传简历就可以开始啦 📄',
+          '点「<b>开始匹配</b>」就能看到结果啦 ⚡',
         ];
         showBubble(msgs[step], step === 0);
+        return;
       }
-    } else {
-      minimize(false);
+      // Done state - friendly greeting first time after expand
+      showBubble('又见面啦 🐾<br>需要我做点什么？', false, 2500);
+      return;
     }
+
+    // Already expanded → "pet" interaction
+    petCount += 1;
+    localStorage.setItem(PET_KEY, String(petCount));
+    let msg;
+    if      (petCount === 5)  msg = `已经摸我 ${petCount} 次了！🥰<br>谢谢你 (灬ºωº灬)`;
+    else if (petCount === 10) msg = `${petCount} 次了！我们是好朋友啦 🐾✨`;
+    else if (petCount === 25) msg = `${petCount} 次！手都酸了吧？(´。＿。\`)`;
+    else if (petCount === 50) msg = `🏆 传说级铲屎官！${petCount} 次！`;
+    else if (petCount === 100) msg = `💯 一百次了你是不是闲？(开玩笑 爱你❤️)`;
+    else msg = pick(PETS);
+    showBubble(msg, false, 2800);
+    flash('pet', 650);
   });
 
   /* ── "开始" button ─────────────────────────────────── */
   document.getElementById('harny-start').addEventListener('click', () => {
     step = 1;
-    showBubble('不错！现在把 JD 粘贴进来吧 📋<br>支持复制粘贴任何职位描述', false);
+    setExpr('excited');
+    setTimeout(() => setExpr(''), 1400);
+    showBubble('不错！现在把 JD 粘贴进来吧 📋<br><small>支持任何招聘网站的职位描述</small>', false);
     const jdEl = document.getElementById('jd-input');
     if (jdEl) jdEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
   /* ── "跳过" button ─────────────────────────────────── */
-  document.getElementById('harny-skip').addEventListener('click', () => minimize(true));
+  document.getElementById('harny-skip').addEventListener('click', () => {
+    showBubble('好的，需要时点我就好 🐾', false, 2200);
+    setTimeout(() => minimize(true), 2200);
+  });
 
   /* ── step 1 → 2: JD filled ────────────────────────── */
   const jdInput = document.getElementById('jd-input');
@@ -805,6 +869,7 @@ const SAMPLE_JDS = {
     jdInput.addEventListener('input', function () {
       if (step === 1 && this.value.trim().length > 15) {
         step = 2;
+        flash('excited', 1200);
         showBubble(
           '很棒！JD 已准备好 ✅<br>接下来上传你的简历吧<br><small>支持 JSON / TXT / PDF</small>',
           false
@@ -819,62 +884,118 @@ const SAMPLE_JDS = {
     new MutationObserver(() => {
       if (step === 2 && badge.style.display !== 'none' && badge.textContent.trim()) {
         step = 3;
+        flash('excited', 1200);
         showBubble(
-          '简历上传成功 🎉<br>点击「<b>开始匹配</b>」<br>看看你和这份工作有多配 ⚡',
+          '简历上传成功 🎉<br>点「<b>开始匹配</b>」<br>看看你和这份工作有多配 ⚡',
           false
         );
       }
     }).observe(badge, { attributes: true, attributeFilter: ['style'], childList: true });
   }
 
-  /* ── match-btn click → analyzing expression ────────── */
+  /* ── match-btn click → validation + analyzing ──────── */
   const matchBtn = document.getElementById('match-btn');
   if (matchBtn) {
     matchBtn.addEventListener('click', () => {
-      if (step >= 0 && step < 4) {
-        setExpr('analyzing');
-        hideBubble();
+      const jdLen = jdInput ? jdInput.value.trim().length : 0;
+      const hasResume = badge && badge.style.display !== 'none' && badge.textContent.trim();
+
+      if (jdLen < 5) {
+        flash('sad', 1500);
+        showBubble('😖 等等！JD 还是空的<br>先粘贴一些内容吧～', false, 3200);
+        return;
       }
+      if (!hasResume) {
+        flash('sad', 1500);
+        showBubble('🥺 等等！简历还没上传<br>先去上面选个文件吧', false, 3500);
+        return;
+      }
+      setExpr('analyzing');
+      hideBubble();
+      // make sure result-section observer sees a fresh score
+      lastShownScore = null;
     });
   }
 
-  /* ── result appears → final message ────────────────── */
+  /* ── result appears → 6-tier reaction ──────────────── */
+  function reactToScore(score) {
+    if (score >= 90) return { e:'happy', m:`🎊 太厉害了！<b>${score} 分</b>！<br>这个 Offer 像是为你量身定做！` };
+    if (score >= 75) return { e:'happy', m:`🎉 匹配度 <b>${score} 分</b>，非常棒！<br>这份工作很值得投！` };
+    if (score >= 60) return { e:'',      m:`👍 匹配度 <b>${score} 分</b>，还不错<br>稍微优化简历更稳！` };
+    if (score >= 45) return { e:'',      m:`💪 匹配度 ${score} 分，可以试试<br>看看右边的提升建议！` };
+    if (score >= 30) return { e:'sad',   m:`🥺 匹配度 ${score} 分，差距有点大<br>看看建议补补技能吧` };
+    return                  { e:'sad',   m:`💭 匹配度 ${score} 分<br>这个方向可能不太合适，换个试试？` };
+  }
+
   const resultSec = document.getElementById('result-section');
-  let lastShownScore = null;
   if (resultSec) {
     new MutationObserver(() => {
       const numEl = resultSec.querySelector('.num');
-      if (!numEl) return;
+      // result cleared → reset cooldown
+      if (!numEl) {
+        if (resultSec.querySelector('.empty-state')) lastShownScore = null;
+        return;
+      }
       const score = parseInt(numEl.textContent, 10);
-      if (isNaN(score) || score === lastShownScore) return;
+      if (isNaN(score)) return;
+      // allow re-trigger after 2.5s cooldown (prevents flicker on animation rerender)
+      if (score === lastShownScore && Date.now() - scoreShownAt < 2500) return;
       lastShownScore = score;
+      scoreShownAt = Date.now();
 
       step = 4;
-      setExpr('');
+      const r = reactToScore(score);
+      setExpr(r.e);
+      showBubble(r.m, false);
 
-      if (score >= 70) {
-        setExpr('happy');
-        showBubble(
-          `哇！匹配度 <b>${score} 分</b> 🎉<br>这份工作非常值得投！`,
-          false
-        );
-      } else if (score < 40) {
-        setExpr('sad');
-        showBubble(
-          `匹配度 ${score} 分，差距不小 💪<br>别灰心！我找到了提升方向`,
-          false
-        );
-      } else {
-        showBubble(
-          `匹配度 <b>${score} 分</b> 📈<br>还有提升空间，继续加油！`,
-          false
-        );
-      }
-
-      // Auto-minimize after 5.5s
-      setTimeout(() => minimize(true), 5500);
+      // Auto minimize after 6.5s
+      if (minimizeTimer) clearTimeout(minimizeTimer);
+      minimizeTimer = setTimeout(() => minimize(true), 6500);
     }).observe(resultSec, { childList: true });
   }
+
+  /* ── reset button → reset state ─────────────────────── */
+  const resetBtn = document.getElementById('reset-btn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      lastShownScore = null;
+      setExpr('');
+      if (minimizeTimer) clearTimeout(minimizeTimer);
+      if (widget.classList.contains('harny--minimized')) {
+        widget.classList.remove('harny--minimized');
+      }
+      showBubble('好的，再来一次！🔄<br>粘贴新的 JD 看看吧～', false, 3500);
+    });
+  }
+
+  /* ── provider switch → flash hint ───────────────────── */
+  const providerTabs = document.getElementById('provider-tabs');
+  if (providerTabs) {
+    providerTabs.addEventListener('click', e => {
+      const btn = e.target.closest('.provider-tab');
+      if (!btn || !widget.classList.contains('harny--visible')) return;
+      if (widget.classList.contains('harny--minimized')) return;
+      const msgs = {
+        claude:   '🟠 让 Claude 来分析吧～',
+        openai:   '🟢 GPT-4o 准备就绪！',
+        deepseek: '🔵 DeepSeek 出击！',
+      };
+      const m = msgs[btn.dataset.provider];
+      if (m && step >= 0) showBubble(m, false, 1800);
+    });
+  }
+
+  /* ── sample JD chips → quick reaction ───────────────── */
+  document.querySelectorAll('.sample-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (!widget.classList.contains('harny--visible')) return;
+      if (widget.classList.contains('harny--minimized')) return;
+      const labels = { frontend:'前端', backend:'后端', ai:'AI 算法', devops:'DevOps' };
+      const lbl = labels[chip.dataset.jd] || '这个';
+      flash('excited', 900);
+      showBubble(`好选择！来看看你和 <b>${lbl}</b> 岗有多配 🚀`, false, 2400);
+    });
+  });
 })();
 </script>
 

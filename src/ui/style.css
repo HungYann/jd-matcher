@@ -856,6 +856,38 @@ hr { border: none; border-top: 1px solid rgba(255,255,255,.06); margin: 20px 0; 
 .harny-widget.harny--sad .hm-normal { display: none; }
 .harny-widget.harny--sad .hm-sad    { display: block; }
 
+/* Excited — energetic bounce (used briefly for transitions) */
+.harny-widget.harny--excited .harny-icon {
+  animation: harny-bounce 0.45s cubic-bezier(0.34,1.56,0.64,1) infinite;
+}
+@keyframes harny-bounce {
+  0%,100% { transform: translateY(0)    scale(1); }
+  50%     { transform: translateY(-10px) scale(1.06); }
+}
+
+/* Brief micro-reactions: applied to inner SVG so container's
+   float animation keeps running underneath. */
+.harny-widget.harny--tilt   .harny-icon svg { animation: harny-tilt-svg   0.9s ease-in-out; }
+.harny-widget.harny--twitch .harny-icon svg { animation: harny-twitch-svg 0.7s ease-in-out; }
+.harny-widget.harny--pet    .harny-icon svg { animation: harny-pet-svg    0.65s ease-in-out; }
+
+@keyframes harny-tilt-svg {
+  0%,100% { transform: rotate(0); }
+  30%     { transform: rotate(-12deg); }
+  65%     { transform: rotate(8deg); }
+}
+@keyframes harny-twitch-svg {
+  0%,100% { transform: scale(1) translateY(0); }
+  40%     { transform: scale(1.04) translateY(-2px) rotate(2deg); }
+  70%     { transform: scale(1.02) translateY(-1px) rotate(-2deg); }
+}
+@keyframes harny-pet-svg {
+  0%,100% { transform: rotate(0)   scale(1); }
+  20%     { transform: rotate(-10deg) scale(1.10); }
+  50%     { transform: rotate(8deg)   scale(1.13); }
+  80%     { transform: rotate(-4deg)  scale(1.07); }
+}
+
 /* ── Minimized state ─────────────────────────────────────────── */
 .harny-widget.harny--minimized .harny-bubble { display: none !important; }
 .harny-widget.harny--minimized .harny-icon {
