@@ -3,8 +3,8 @@
 **Multi-dimensional job description × résumé matching analysis — runs entirely in the browser, no backend required.**
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Live App](https://img.shields.io/badge/app-live-brightgreen)](https://jd-matcher-app.vercel.app/src/ui/index.html)
-[![Docs](https://img.shields.io/badge/docs-fumadocs-purple)](https://jd-matcher-76vw.vercel.app/docs)
+[![Live App](https://img.shields.io/badge/app-live-brightgreen)](https://harnessjob.com)
+[![Docs](https://img.shields.io/badge/docs-fumadocs-purple)](https://docs.harnessjob.com/docs)
 
 ---
 
@@ -26,8 +26,8 @@ AI blend (when enabled): `AI × 0.6 + local × 0.4`
 
 | Link | Description |
 |------|-------------|
-| [**App →**](https://jd-matcher-app.vercel.app/src/ui/index.html) | The matching tool |
-| [**Docs →**](https://jd-matcher-76vw.vercel.app/docs) | Design docs, architecture, Sprint history |
+| [**App →**](https://harnessjob.com) | The matching tool |
+| [**Docs →**](https://docs.harnessjob.com/docs) | Design docs, architecture, Sprint history |
 
 ---
 
@@ -169,7 +169,7 @@ Click **Run Analysis**. Results include:
 
 ## 🧠 Claude Code Skills
 
-Two [Claude Code Skills](https://jd-matcher-76vw.vercel.app/docs/skills) are included in `.claude/skills/`:
+Two [Claude Code Skills](https://docs.harnessjob.com/docs/skills) are included in `.claude/skills/`:
 
 | Skill | Trigger | Purpose |
 |-------|---------|---------|
@@ -220,14 +220,14 @@ Deploy the repo root as a static site. No build command required.
 
 ## 📚 Documentation
 
-Full design docs live at **[jd-matcher-76vw.vercel.app/docs](https://jd-matcher-76vw.vercel.app/docs)**:
+Full design docs live at **[docs.harnessjob.com/docs](https://docs.harnessjob.com/docs)**:
 
-- [Architecture & dependency layers](https://jd-matcher-76vw.vercel.app/docs/architecture)
-- [Sprint history (S1–S8)](https://jd-matcher-76vw.vercel.app/docs/sprints)
-- [Module docs](https://jd-matcher-76vw.vercel.app/docs/modules)
-- [Configuration reference](https://jd-matcher-76vw.vercel.app/docs/configuration)
-- [Developer guide](https://jd-matcher-76vw.vercel.app/docs/dev-guide)
-- [Harness compliance audit](https://jd-matcher-76vw.vercel.app/docs/harness-audit)
+- [Architecture & dependency layers](https://docs.harnessjob.com/docs/architecture)
+- [Sprint history (S1–S8)](https://docs.harnessjob.com/docs/sprints)
+- [Module docs](https://docs.harnessjob.com/docs/modules)
+- [Configuration reference](https://docs.harnessjob.com/docs/configuration)
+- [Developer guide](https://docs.harnessjob.com/docs/dev-guide)
+- [Harness compliance audit](https://docs.harnessjob.com/docs/harness-audit)
 
 ---
 
