@@ -728,6 +728,9 @@ const SAMPLE_JDS = {
     localStorage.removeItem(DONE_KEY);
     localStorage.removeItem(PET_KEY);
   }
+  // One-time cleanup: legacy DONE_KEY is no longer used to suppress onboarding.
+  // Remove it so the storage stays tidy.
+  if (localStorage.getItem(DONE_KEY)) localStorage.removeItem(DONE_KEY);
 
   // DOM refs
   const widget = document.getElementById('harny-widget');
@@ -791,10 +794,12 @@ const SAMPLE_JDS = {
   }
   function hideBubble() { bubble.style.display = 'none'; }
 
+  // markDone now only updates session state (step) — never writes localStorage.
+  // This ensures Harny re-greets on the next page load, per UX requirement.
   function minimize(markDone) {
     widget.classList.add('harny--minimized');
     setExpr('');
-    if (markDone) { localStorage.setItem(DONE_KEY, '1'); step = 4; }
+    if (markDone) step = 4;
   }
 
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -815,19 +820,19 @@ const SAMPLE_JDS = {
   }, 11000);
 
   /* ── boot ──────────────────────────────────────────── */
-  if (localStorage.getItem(DONE_KEY)) {
-    widget.classList.add('harny--visible', 'harny--minimized');
-    step = 4;
-  } else {
-    setTimeout(() => {
-      step = 0;
-      widget.classList.add('harny--visible');
-      showBubble(
-        '你好！我是 Harny 🐾<br>帮你找到最匹配的工作！<br>先把 JD 粘贴进去试试？',
-        true
-      );
-    }, 1500);
-  }
+  // Onboarding now shows on EVERY page load (regardless of past sessions).
+  // We still note whether this is a returning user (petCount > 0) to vary
+  // the greeting message slightly. Skip / close just dismisses for the
+  // current session — next refresh brings Harny back.
+  const isReturning = petCount > 0 || !!localStorage.getItem(DONE_KEY);
+  setTimeout(() => {
+    step = 0;
+    widget.classList.add('harny--visible');
+    const welcome = isReturning
+      ? '欢迎回来 🐾<br>我是 Harny，再帮你看看下一份 JD？<br>把内容粘贴进去试试吧～'
+      : '你好！我是 Harny 🐾<br>帮你找到最匹配的工作！<br>先把 JD 粘贴进去试试？';
+    showBubble(welcome, true);
+  }, 1500);
 
   /* ── icon click: toggle / pet ───────────────────────── */
   iconEl.addEventListener('click', () => {
