@@ -380,106 +380,136 @@ Requirements:
 
   <!-- Akita puppy SVG -->
   <div id="harny-icon" class="harny-icon" title="Harny · 点击展开 / 收起">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 116" width="88" height="100">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 108" width="92" height="100">
       <defs>
-        <radialGradient id="hfur" cx="45%" cy="35%" r="60%">
-          <stop offset="0%"   stop-color="#f09050"/>
-          <stop offset="100%" stop-color="#c8601e"/>
+        <radialGradient id="hfur" cx="42%" cy="32%" r="68%">
+          <stop offset="0%"   stop-color="#fbac68"/>
+          <stop offset="55%"  stop-color="#e07845"/>
+          <stop offset="100%" stop-color="#a8501a"/>
         </radialGradient>
         <radialGradient id="hchest" cx="50%" cy="45%" r="55%">
           <stop offset="0%"   stop-color="#fffbf0"/>
-          <stop offset="100%" stop-color="#fce8b0"/>
+          <stop offset="100%" stop-color="#f8e2a8"/>
+        </radialGradient>
+        <radialGradient id="hmask" cx="50%" cy="38%" r="62%">
+          <stop offset="0%"   stop-color="#fffbf0"/>
+          <stop offset="100%" stop-color="#f7e0a8"/>
+        </radialGradient>
+        <radialGradient id="hblush" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#ff9a85" stop-opacity="0.75"/>
+          <stop offset="100%" stop-color="#ff9a85" stop-opacity="0"/>
         </radialGradient>
       </defs>
 
-      <!-- Tail (behind body, curled over back) -->
+      <!-- Curly tail (peeking over right shoulder) -->
       <g class="ht-tail">
-        <path d="M 66 87 C 86 74 95 54 81 43 C 74 37 66 46 72 54"
-              fill="none" stroke="#e07845" stroke-width="9"  stroke-linecap="round"/>
-        <path d="M 66 87 C 86 74 95 54 81 43 C 74 37 66 46 72 54"
-              fill="none" stroke="#f4a060" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M 68 76 Q 92 64 88 44 Q 84 36 75 42 Q 70 48 74 54"
+              fill="none" stroke="#a8501a" stroke-width="10.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 68 76 Q 92 64 88 44 Q 84 36 75 42 Q 70 48 74 54"
+              fill="none" stroke="#f0a060" stroke-width="5"    stroke-linecap="round" stroke-linejoin="round"/>
       </g>
 
-      <!-- Body -->
-      <ellipse cx="50" cy="90" rx="26" ry="22" fill="url(#hfur)"/>
-      <!-- Chest fluff -->
-      <ellipse cx="50" cy="94" rx="17" ry="14" fill="url(#hchest)"/>
+      <!-- Body (small mochi) -->
+      <ellipse cx="50" cy="82" rx="25" ry="17" fill="url(#hfur)"/>
+      <!-- Cream belly -->
+      <ellipse cx="50" cy="85" rx="15" ry="12" fill="url(#hchest)"/>
 
-      <!-- Paws -->
-      <ellipse cx="34" cy="109" rx="11" ry="7"   fill="#e07845"/>
-      <ellipse cx="34" cy="111" rx="7"  ry="3.5" fill="#c96030" opacity="0.5"/>
-      <ellipse cx="66" cy="109" rx="11" ry="7"   fill="#e07845"/>
-      <ellipse cx="66" cy="111" rx="7"  ry="3.5" fill="#c96030" opacity="0.5"/>
+      <!-- Paws with pink toe pads -->
+      <ellipse cx="36" cy="98" rx="10" ry="6"   fill="#c46326"/>
+      <ellipse cx="36" cy="100" rx="6" ry="3"   fill="#ff9a85" opacity="0.55"/>
+      <ellipse cx="64" cy="98" rx="10" ry="6"   fill="#c46326"/>
+      <ellipse cx="64" cy="100" rx="6" ry="3"   fill="#ff9a85" opacity="0.55"/>
 
-      <!-- Neck connection -->
-      <ellipse cx="50" cy="72" rx="17" ry="10" fill="url(#hfur)"/>
+      <!-- HEAD (large dome, dominates figure) -->
+      <ellipse cx="50" cy="42" rx="34" ry="32" fill="url(#hfur)"/>
 
-      <!-- Head -->
-      <circle cx="50" cy="46" r="32" fill="url(#hfur)"/>
+      <!-- Left ear (rounded triangle, fluffy outer + inner pink) -->
+      <path d="M 18 32 Q 6 -2 26 6 Q 38 18 34 34 Q 26 38 18 32 Z" fill="#c46326"/>
+      <path d="M 20 30 Q 14 8 24 12 Q 32 22 30 30 Q 26 32 20 30 Z" fill="#f4a46a"/>
+      <!-- Right ear -->
+      <path d="M 82 32 Q 94 -2 74 6 Q 62 18 66 34 Q 74 38 82 32 Z" fill="#c46326"/>
+      <path d="M 80 30 Q 86 8 76 12 Q 68 22 70 30 Q 74 32 80 30 Z" fill="#f4a46a"/>
 
-      <!-- Left ear outer / inner -->
-      <polygon points="22,28 13,2 38,26"  fill="#e07845"/>
-      <polygon points="23,25 17,8 34,24"  fill="#f4a46a"/>
-      <!-- Right ear outer / inner -->
-      <polygon points="78,28 87,2 62,26"  fill="#e07845"/>
-      <polygon points="77,25 83,8 66,24"  fill="#f4a46a"/>
+      <!-- Subtle Akita V-mark on forehead -->
+      <path d="M 50 22 L 44 30 L 50 26 L 56 30 Z" fill="#8a4015" opacity="0.22"/>
 
-      <!-- Cream face mask -->
-      <ellipse cx="50" cy="56" rx="21" ry="19" fill="#fef3c7"/>
+      <!-- Cream face mask (heart-shaped lower edge) -->
+      <path d="M 50 28
+               Q 26 30 24 50
+               Q 24 62 36 68
+               Q 50 74 64 68
+               Q 76 62 76 50
+               Q 74 30 50 28 Z"
+            fill="url(#hmask)"/>
 
-      <!-- Cheek blush -->
-      <ellipse cx="30" cy="57" rx="7" ry="5" fill="rgba(255,100,55,0.17)"/>
-      <ellipse cx="70" cy="57" rx="7" ry="5" fill="rgba(255,100,55,0.17)"/>
+      <!-- Pink blush cheeks -->
+      <circle cx="26" cy="56" r="7" fill="url(#hblush)"/>
+      <circle cx="74" cy="56" r="7" fill="url(#hblush)"/>
 
-      <!-- ─── EYES: idle (big round + sparkle) ─── -->
+      <!-- ─── EYES: idle — HUGE almond with multi-layer sparkles ─── -->
       <g class="he-normal">
-        <circle cx="39" cy="45" r="9"   fill="#1a0800"/>
-        <circle cx="43" cy="41" r="3.8" fill="white"/>
-        <circle cx="40" cy="49" r="1.6" fill="white" opacity="0.42"/>
-        <circle cx="61" cy="45" r="9"   fill="#1a0800"/>
-        <circle cx="65" cy="41" r="3.8" fill="white"/>
-        <circle cx="62" cy="49" r="1.6" fill="white" opacity="0.42"/>
+        <!-- Left eye -->
+        <ellipse cx="37" cy="46" rx="9" ry="12" fill="#1a0800"/>
+        <ellipse cx="40" cy="42" rx="4" ry="5"  fill="white"/>
+        <ellipse cx="34" cy="53" rx="2.5" ry="3" fill="white"/>
+        <circle  cx="37" cy="48" r="1.3" fill="white" opacity="0.5"/>
+        <!-- Right eye -->
+        <ellipse cx="63" cy="46" rx="9" ry="12" fill="#1a0800"/>
+        <ellipse cx="66" cy="42" rx="4" ry="5"  fill="white"/>
+        <ellipse cx="60" cy="53" rx="2.5" ry="3" fill="white"/>
+        <circle  cx="63" cy="48" r="1.3" fill="white" opacity="0.5"/>
       </g>
-      <!-- EYES: happy (^ ^) -->
+
+      <!-- EYES: happy (^ ^ with stars) -->
       <g class="he-happy">
-        <path d="M 31 48 Q 39 39 47 48" fill="none" stroke="#1a0800" stroke-width="4"   stroke-linecap="round"/>
-        <path d="M 53 48 Q 61 39 69 48" fill="none" stroke="#1a0800" stroke-width="4"   stroke-linecap="round"/>
+        <path d="M 28 50 Q 37 38 46 50" fill="none" stroke="#1a0800" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M 54 50 Q 63 38 72 50" fill="none" stroke="#1a0800" stroke-width="4.5" stroke-linecap="round"/>
+        <text x="14" y="40" font-size="11" fill="#ffd76b">✦</text>
+        <text x="80" y="40" font-size="11" fill="#ffd76b">✦</text>
       </g>
-      <!-- EYES: analyzing (◎) -->
+
+      <!-- EYES: analyzing (◎ thinking) -->
       <g class="he-analyzing">
-        <circle cx="39" cy="45" r="10" fill="none" stroke="#1a0800" stroke-width="3"/>
-        <circle cx="39" cy="45" r="5"  fill="#1a0800"/>
-        <circle cx="61" cy="45" r="10" fill="none" stroke="#1a0800" stroke-width="3"/>
-        <circle cx="61" cy="45" r="5"  fill="#1a0800"/>
+        <circle cx="37" cy="46" r="11" fill="none" stroke="#1a0800" stroke-width="3.5"/>
+        <circle cx="37" cy="46" r="5"  fill="#1a0800"/>
+        <circle cx="63" cy="46" r="11" fill="none" stroke="#1a0800" stroke-width="3.5"/>
+        <circle cx="63" cy="46" r="5"  fill="#1a0800"/>
       </g>
-      <!-- EYES: sad (droopy + inner brows) -->
+
+      <!-- EYES: sad (droopy + tear) -->
       <g class="he-sad">
-        <path d="M 31 37 Q 39 42 47 37" fill="none" stroke="#7a3000" stroke-width="2.2" stroke-linecap="round" opacity="0.72"/>
-        <path d="M 53 37 Q 61 42 69 37" fill="none" stroke="#7a3000" stroke-width="2.2" stroke-linecap="round" opacity="0.72"/>
-        <ellipse cx="39" cy="47" rx="9" ry="7" fill="#1a0800"/>
-        <circle  cx="43" cy="43" r="3.2" fill="white"/>
-        <ellipse cx="61" cy="47" rx="9" ry="7" fill="#1a0800"/>
-        <circle  cx="65" cy="43" r="3.2" fill="white"/>
+        <path d="M 28 36 Q 37 42 46 36" fill="none" stroke="#7a3000" stroke-width="2.5" stroke-linecap="round" opacity="0.78"/>
+        <path d="M 54 36 Q 63 42 72 36" fill="none" stroke="#7a3000" stroke-width="2.5" stroke-linecap="round" opacity="0.78"/>
+        <ellipse cx="37" cy="49" rx="9" ry="8" fill="#1a0800"/>
+        <ellipse cx="40" cy="45" rx="3" ry="3.5" fill="white"/>
+        <ellipse cx="63" cy="49" rx="9" ry="8" fill="#1a0800"/>
+        <ellipse cx="66" cy="45" rx="3" ry="3.5" fill="white"/>
+        <!-- Teardrop -->
+        <path d="M 29 58 Q 27 62 29 64 Q 31 62 29 58 Z" fill="#86c8f5" opacity="0.85"/>
       </g>
 
-      <!-- Nose -->
-      <ellipse cx="50" cy="60" rx="5"   ry="3.5" fill="#2d1000"/>
-      <ellipse cx="51.5" cy="58.8" rx="1.8" ry="1.1" fill="rgba(255,255,255,0.28)"/>
+      <!-- Heart-shaped nose -->
+      <path d="M 46 60 Q 46 57 48.5 57 Q 50 57 50 59 Q 50 57 51.5 57 Q 54 57 54 60 Q 54 64 50 67 Q 46 64 46 60 Z" fill="#2d1000"/>
+      <ellipse cx="51" cy="59.5" rx="1.4" ry="0.9" fill="rgba(255,255,255,0.32)"/>
 
-      <!-- ─── MOUTH: normal (ω curl) ─── -->
+      <!-- ─── MOUTH: normal (cute curl + tiny tongue) ─── -->
       <g class="hm-normal">
-        <path d="M 42 66 Q 47 72 50 68 Q 53 72 58 66"
+        <path d="M 44 67 Q 47 71 50 69 Q 53 71 56 67"
               fill="none" stroke="#2d1000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="50" cy="70.5" rx="2.2" ry="1.6" fill="#ff7a90"/>
       </g>
-      <!-- MOUTH: happy (big smile + tongue) -->
+
+      <!-- MOUTH: happy (big open smile + full tongue) -->
       <g class="hm-happy">
-        <path d="M 38 67 Q 50 79 62 67" fill="none" stroke="#2d1000" stroke-width="2.6" stroke-linecap="round"/>
-        <ellipse cx="50" cy="74" rx="8" ry="6" fill="#f87171"/>
-        <line x1="50" y1="69" x2="50" y2="79" stroke="#e05050" stroke-width="1.6"/>
+        <path d="M 38 67 Q 50 80 62 67" fill="none" stroke="#2d1000" stroke-width="2.6" stroke-linecap="round"/>
+        <ellipse cx="50" cy="74" rx="8.5" ry="6" fill="#ff7a90"/>
+        <path d="M 50 69 L 50 79" stroke="#e05070" stroke-width="1.6" stroke-linecap="round"/>
+        <ellipse cx="49" cy="72" rx="1.5" ry="1" fill="#ffb0c0" opacity="0.7"/>
       </g>
-      <!-- MOUTH: sad (downturned) -->
+
+      <!-- MOUTH: sad (downturned + quiver) -->
       <g class="hm-sad">
-        <path d="M 42 69 Q 47 64 50 67 Q 53 64 58 69"
+        <path d="M 44 70 Q 50 65 56 70"
               fill="none" stroke="#2d1000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </g>
     </svg>

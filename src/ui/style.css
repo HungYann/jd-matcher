@@ -763,12 +763,12 @@ hr { border: none; border-top: 1px solid rgba(255,255,255,.06); margin: 20px 0; 
 /* ── Mascot icon container ───────────────────────────────────── */
 .harny-icon {
   cursor: pointer;
-  width: 88px;
+  width: 92px;
   height: 100px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  filter: drop-shadow(0 0 18px rgba(224,120,69,0.52)) drop-shadow(0 6px 16px rgba(0,0,0,0.45));
+  filter: drop-shadow(0 0 20px rgba(255,140,80,0.55)) drop-shadow(0 6px 18px rgba(0,0,0,0.5));
   transition: filter 0.2s ease;
   animation: harny-float 3.5s ease-in-out infinite;
   will-change: transform;
@@ -783,16 +783,16 @@ hr { border: none; border-top: 1px solid rgba(255,255,255,.06); margin: 20px 0; 
 .harny-icon:hover svg { transform: scale(1.07); }
 
 /* ── SVG inner animations ────────────────────────────────────── */
-/* Tail wag — pivot at base of tail (SVG coords ~66,88) */
+/* Tail wag — pivot at base of curly tail (SVG coords ~68,76) */
 .ht-tail {
   transform-box: view-box;
-  transform-origin: 66px 88px;
+  transform-origin: 68px 76px;
   animation: harny-tail 1.6s ease-in-out infinite;
 }
 /* Eye blink — pivot at eye-row center */
 .he-normal {
   transform-box: view-box;
-  transform-origin: 50px 45px;
+  transform-origin: 50px 46px;
   animation: harny-blink 5s infinite;
 }
 
