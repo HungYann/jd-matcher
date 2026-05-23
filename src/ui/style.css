@@ -697,6 +697,36 @@ input:focus { border-color: rgba(139,124,248,.5); box-shadow: 0 0 0 3px rgba(139
 }
 .ai-block p { font-size: .86rem; font-weight: 300; line-height: 1.8; color: rgba(255,255,255,.78); }
 
+/* ── FAQ Section ─────────────────────────────────────────────── */
+.faq-section {
+  position: relative; z-index: 2;
+  padding: 80px 24px 100px; max-width: 760px; margin: 0 auto;
+}
+.faq-title {
+  font-size: 2rem; color: white; margin-bottom: 32px; text-align: center;
+}
+.faq-list { display: flex; flex-direction: column; gap: 10px; }
+.faq-item {
+  border-radius: 14px; overflow: hidden;
+}
+.faq-item summary {
+  font-size: .9rem; font-weight: 500; color: var(--text);
+  padding: 16px 20px; cursor: pointer; list-style: none;
+  display: flex; justify-content: space-between; align-items: center;
+  user-select: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+'; font-size: 1.2rem; color: var(--subtle);
+  transition: transform .2s, color .2s; flex-shrink: 0;
+}
+.faq-item[open] summary::after { transform: rotate(45deg); color: var(--accent); }
+.faq-item[open] summary { color: var(--accent); }
+.faq-item p {
+  font-size: .85rem; font-weight: 300; line-height: 1.8;
+  color: rgba(255,255,255,.65); padding: 0 20px 18px;
+}
+
 /* ── Misc ────────────────────────────────────────────────────── */
 hr { border: none; border-top: 1px solid rgba(255,255,255,.06); margin: 20px 0; }
 .chart-wrap { position: relative; height: 200px; margin-top: 6px; }

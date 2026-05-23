@@ -1,0 +1,34 @@
+# HarnessJob
+
+> AI 驱动的职位 JD × 简历多维度匹配分析工具，完全在浏览器本地运行，免费使用。
+
+## 功能
+
+- 技能匹配（权重 50%）：对比简历技能与 JD 要求关键词，覆盖 7 大技能类别
+- 经验评分（权重 30%）：工作年限与 JD 最低要求比对
+- 学历评分（权重 20%）：学历层级与 JD 要求对照
+- AI 增强分析：接入 Claude / OpenAI / DeepSeek，AI×0.6 + 本地×0.4 融合评分
+- 隐私安全：数据 100% 本地处理，不上传服务器
+
+## 适合人群
+
+- 求职者：快速判断自身与目标岗位的匹配程度，获取技能差距建议
+- HR / 招聘方：批量筛选候选人与 JD 的契合度
+
+## 使用方法
+
+1. 粘贴职位描述（JD）文本
+2. 上传简历（支持 JSON / TXT / PDF）
+3. 点击「Run Analysis」获得评分报告
+
+## 技术特点
+
+- 纯浏览器端，ES Modules，无需后端
+- 支持 JSON / TXT / PDF 简历格式（JSON 精度最高）
+- 本地算法 fallback，无 API Key 也可使用
+
+## 链接
+
+- 工具主页：https://harnessjob.com
+- 文档：https://docs.harnessjob.com
+- 源码：https://github.com/HungYann/jd-matcher

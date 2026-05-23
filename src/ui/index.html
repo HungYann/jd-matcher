@@ -3,7 +3,48 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dream Offer Matcher — 目标岗位匹配分析</title>
+  <title>HarnessJob — AI 职位匹配分析 | 简历×JD 多维度评分</title>
+
+  <!-- SEO -->
+  <meta name="description" content="AI 驱动的职位 JD × 简历多维度匹配分析，支持 Claude / OpenAI / DeepSeek，技能、经验、学历三维评分，帮你找到最匹配的工作机会。完全浏览器本地运行，免费。">
+  <meta name="keywords" content="JD匹配,简历分析,求职工具,职位匹配度,AI求职,招聘筛选,harnessjob">
+  <meta name="author" content="HungYann">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://harnessjob.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="HarnessJob — AI 职位匹配分析">
+  <meta property="og:description" content="粘贴JD，上传简历，秒出匹配度评分与差距分析。支持 Claude / OpenAI / DeepSeek。">
+  <meta property="og:url" content="https://harnessjob.com/">
+  <meta property="og:image" content="https://harnessjob.com/og-image.svg">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="HarnessJob">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HarnessJob — AI 职位匹配分析">
+  <meta name="twitter:description" content="粘贴JD，上传简历，秒出匹配度评分与差距分析。">
+  <meta name="twitter:image" content="https://harnessjob.com/og-image.svg">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HarnessJob",
+    "url": "https://harnessjob.com",
+    "description": "AI驱动的职位JD与简历多维度匹配分析工具，技能×0.5 + 经验×0.3 + 学历×0.2加权评分",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web Browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+    "author": { "@type": "Person", "name": "HungYann" },
+    "featureList": ["JD解析", "简历上传", "AI增强分析", "技能差距分析", "多维度评分"]
+  }
+  </script>
 
   <!-- Fonts: Instrument Serif (italic heading) + Barlow (body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -290,6 +331,35 @@ Requirements:
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- ── FAQ Section (SEO + GEO) ───────────────────────────────── -->
+<section class="faq-section" id="faq" aria-label="常见问题">
+  <div class="faq-inner">
+    <h2 class="faq-title font-serif-italic">常见问题</h2>
+    <div class="faq-list">
+      <details class="faq-item liquid-glass">
+        <summary>HarnessJob 是什么？</summary>
+        <p>HarnessJob 是一个 AI 驱动的职位匹配工具，帮助求职者分析自身技能与目标 JD 的匹配度，也非常适合 HR 快速筛选候选人。</p>
+      </details>
+      <details class="faq-item liquid-glass">
+        <summary>如何使用？</summary>
+        <p>粘贴职位描述（JD）→ 上传简历（JSON / TXT / PDF）→ 点击「Run Analysis」，即可获得技能、经验、学历三维评分和 AI 建议。</p>
+      </details>
+      <details class="faq-item liquid-glass">
+        <summary>支持哪些 AI 模型？</summary>
+        <p>支持 Anthropic Claude、OpenAI GPT-4o、DeepSeek deepseek-chat。不填 API Key 时自动使用本地算法，无需任何账号。</p>
+      </details>
+      <details class="faq-item liquid-glass">
+        <summary>我的简历和 API Key 会上传到服务器吗？</summary>
+        <p>不会。所有计算完全在浏览器本地完成，数据不经过任何中间服务器，100% 隐私安全。</p>
+      </details>
+      <details class="faq-item liquid-glass">
+        <summary>简历支持什么格式？</summary>
+        <p>支持 JSON（精度最高）、TXT、PDF 三种格式。推荐使用 JSON 格式以获得最准确的技能匹配结果。</p>
+      </details>
+    </div>
   </div>
 </section>
 
